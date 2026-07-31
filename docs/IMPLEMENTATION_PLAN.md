@@ -27,14 +27,14 @@
 
 브랜치: `chore/project-setup`
 
-- [ ] Vue 3, TypeScript, Vite 프로젝트 구성
-- [ ] Vue Router와 Pinia 설정
-- [ ] ESLint와 Prettier 설정
-- [ ] Vitest, Vue Test Utils, jsdom 설정
-- [ ] MSW 초기화
-- [ ] 기본 전역 스타일과 디자인 토큰 구성
-- [ ] 기본 앱 셸과 라우트 연결
-- [ ] 개발 서버, 타입 검사, 린트, 테스트, 빌드 검증
+- [x] Vue 3, TypeScript, Vite 프로젝트 구성
+- [x] Vue Router와 Pinia 설정
+- [x] ESLint와 Prettier 설정
+- [x] Vitest, Vue Test Utils, jsdom 설정
+- [x] MSW 초기화
+- [x] 기본 전역 스타일과 디자인 토큰 구성
+- [x] 기본 앱 셸과 라우트 연결
+- [x] 개발 서버, 타입 검사, 린트, 테스트, 빌드 검증
 
 ## 2. 도메인 모델과 Mock API
 

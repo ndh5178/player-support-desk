@@ -18,7 +18,7 @@
 
 - [ ] `npm run type-check`
 - [ ] `npm run lint`
-- [ ] `npm run test:unit -- --run`
+- [ ] `npm run test:unit`
 - [ ] `npm run build`
 
 ## 수동 검증
