@@ -11,8 +11,8 @@
     <section class="placeholder-panel" aria-labelledby="dashboard-ready-title">
       <h2 id="dashboard-ready-title">대시보드 준비 완료</h2>
       <p>
-        다음 기능 작업에서 요약 지표, 최근 문의, 우선순위별 분포를 실제 Mock
-        API 데이터와 연결합니다.
+        다음 기능 작업에서 요약 지표, 최근 문의, 우선순위별 분포를 실제 Mock API 데이터와
+        연결합니다.
       </p>
     </section>
   </div>

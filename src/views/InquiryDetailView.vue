@@ -17,8 +17,8 @@ const route = useRoute()
     <section class="placeholder-panel" aria-labelledby="inquiry-detail-ready-title">
       <h2 id="inquiry-detail-ready-title">상세 화면 준비 완료</h2>
       <p>
-        다음 기능 작업에서 상태·담당자 변경, 처리 이력, 운영 메모를 실제 Mock
-        API와 연결합니다.
+        다음 기능 작업에서 상태·담당자 변경, 처리 이력, 운영 메모를 실제 Mock API와
+        연결합니다.
       </p>
     </section>
   </div>
