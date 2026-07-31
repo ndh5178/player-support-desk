@@ -5,7 +5,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import AppShell from '@/components/layout/AppShell.vue'
 import { focusPageHeading } from '@/router'
 
-async function mountAppShell(initialLocation = '/') {
+async function mountAppShell(
+  initialLocation = '/',
+  content = '<h1>테스트 화면</h1><button type="button">주요 작업</button>',
+) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -20,7 +23,7 @@ async function mountAppShell(initialLocation = '/') {
   return mount(AppShell, {
     attachTo: document.body,
     slots: {
-      default: '<h1>테스트 화면</h1><button type="button">주요 작업</button>',
+      default: content,
     },
     global: {
       plugins: [router],
@@ -60,5 +63,23 @@ describe('AppShell 접근성', () => {
 
     expect(heading.attributes('tabindex')).toBe('-1')
     expect(document.activeElement).toBe(heading.element)
+  })
+
+  it('Lazy Loading 화면의 제목이 늦게 렌더링되어도 포커스를 이동한다', async () => {
+    await mountAppShell('/', '<p>화면을 불러오는 중</p>')
+    const focusPromise = focusPageHeading()
+
+    window.setTimeout(() => {
+      document
+        .querySelector('.app-shell__content')
+        ?.insertAdjacentHTML('afterbegin', '<h1>지연된 상세 화면</h1>')
+    }, 40)
+
+    await focusPromise
+
+    const heading = document.querySelector<HTMLHeadingElement>('#main-content h1')
+
+    expect(heading?.tabIndex).toBe(-1)
+    expect(document.activeElement).toBe(heading)
   })
 })

@@ -1,17 +1,31 @@
 import { nextTick } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 
 import DashboardView from '@/views/DashboardView.vue'
 import InquiryListView from '@/views/InquiryListView.vue'
 
+const FOCUS_RETRY_LIMIT = 20
+const FOCUS_RETRY_DELAY_MS = 25
+
+function waitForHeadingRender(): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, FOCUS_RETRY_DELAY_MS)
+  })
+}
+
 export async function focusPageHeading(): Promise<void> {
-  await nextTick()
+  for (let attempt = 0; attempt < FOCUS_RETRY_LIMIT; attempt += 1) {
+    await nextTick()
 
-  const pageHeading = document.querySelector<HTMLElement>('#main-content h1')
+    const pageHeading = document.querySelector<HTMLElement>('#main-content h1')
 
-  if (pageHeading) {
-    pageHeading.tabIndex = -1
-    pageHeading.focus({ preventScroll: true })
+    if (pageHeading) {
+      pageHeading.tabIndex = -1
+      pageHeading.focus({ preventScroll: true })
+      return
+    }
+
+    await waitForHeadingRender()
   }
 }
 
@@ -58,7 +72,7 @@ router.afterEach(async (to, from) => {
   const title = typeof to.meta.title === 'string' ? to.meta.title : ''
   document.title = title ? `${title} | 플레이어 지원 데스크` : '플레이어 지원 데스크'
 
-  if (to.path === from.path) {
+  if (from === START_LOCATION || to.path === from.path) {
     return
   }
 
