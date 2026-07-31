@@ -195,19 +195,7 @@ onUnmounted(() => {
       </div>
 
       <div class="detail-layout">
-        <div class="detail-main">
-          <InquiryOverview :inquiry="currentInquiry" />
-          <InquiryNotes
-            :notes="currentInquiry.notes"
-            :model-value="noteInput"
-            :error-message="noteErrorMessage"
-            :is-saving="isAddingNote"
-            :disabled="isUpdatingInquiry"
-            @update:model-value="updateNoteInput"
-            @submit="submitNote"
-          />
-          <InquiryTimeline :history="currentInquiry.history" />
-        </div>
+        <InquiryOverview class="detail-overview" :inquiry="currentInquiry" />
 
         <aside class="detail-aside" aria-label="문의 처리와 고객 정보">
           <InquiryManagementPanel
@@ -263,6 +251,18 @@ onUnmounted(() => {
             </dl>
           </section>
         </aside>
+
+        <InquiryNotes
+          class="detail-notes"
+          :notes="currentInquiry.notes"
+          :model-value="noteInput"
+          :error-message="noteErrorMessage"
+          :is-saving="isAddingNote"
+          :disabled="isUpdatingInquiry"
+          @update:model-value="updateNoteInput"
+          @submit="submitNote"
+        />
+        <InquiryTimeline class="detail-timeline" :history="currentInquiry.history" />
       </div>
     </template>
   </div>
@@ -384,16 +384,38 @@ onUnmounted(() => {
 }
 
 .detail-layout,
-.detail-main,
 .detail-aside {
   display: grid;
   min-width: 0;
   gap: var(--space-5);
 }
 
-.detail-main,
 .detail-aside {
   align-content: start;
+}
+
+.detail-overview {
+  grid-area: overview;
+}
+
+.detail-aside {
+  grid-area: aside;
+}
+
+.detail-notes {
+  grid-area: notes;
+}
+
+.detail-timeline {
+  grid-area: timeline;
+}
+
+.detail-layout {
+  grid-template-areas:
+    'overview'
+    'aside'
+    'notes'
+    'timeline';
 }
 
 .customer-card {
@@ -539,6 +561,10 @@ onUnmounted(() => {
 @media (min-width: 64rem) {
   .detail-layout {
     grid-template-columns: minmax(0, 1.75fr) minmax(19rem, 0.8fr);
+    grid-template-areas:
+      'overview aside'
+      'notes aside'
+      'timeline aside';
     align-items: start;
   }
 
