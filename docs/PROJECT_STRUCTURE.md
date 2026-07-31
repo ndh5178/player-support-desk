@@ -9,6 +9,10 @@ player-support-desk/
 ├─ .github/
 │  └─ pull_request_template.md
 ├─ docs/
+│  └─ images/
+│     ├─ dashboard-desktop.png
+│     ├─ inquiry-detail-mobile.png
+│     └─ inquiry-list-desktop.png
 ├─ public/
 │  └─ mockServiceWorker.js
 ├─ src/
