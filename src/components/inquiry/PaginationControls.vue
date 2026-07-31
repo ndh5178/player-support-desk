@@ -99,8 +99,8 @@ const itemRange = computed(() => {
 
 .pagination button {
   display: grid;
-  min-width: 2.5rem;
-  min-height: 2.5rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   place-items: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);

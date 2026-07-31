@@ -273,7 +273,7 @@ function getInputValue(event: Event): string {
 }
 
 .filter-bar input::placeholder {
-  color: #819098;
+  color: var(--color-text-muted);
 }
 
 .filter-bar input:hover,

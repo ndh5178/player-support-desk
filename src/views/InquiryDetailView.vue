@@ -368,8 +368,8 @@ onUnmounted(() => {
 
 .feedback-message button {
   display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   place-items: center;
   border: 0;
   border-radius: var(--radius-sm);

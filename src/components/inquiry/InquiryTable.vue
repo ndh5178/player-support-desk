@@ -141,8 +141,10 @@ tbody tr:hover {
 }
 
 .inquiry-cell a {
-  display: block;
+  display: inline-flex;
   overflow: hidden;
+  min-height: 2.75rem;
+  align-items: center;
   max-width: 25rem;
   color: var(--color-text-strong);
   font-weight: 700;
