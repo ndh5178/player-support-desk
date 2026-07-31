@@ -9,6 +9,7 @@ interface StoredInquiryData {
 }
 
 let memoryInquiries: Inquiry[] | null = null
+let useMemoryFallback = false
 
 function cloneInquiries(inquiries: Inquiry[]): Inquiry[] {
   return structuredClone(inquiries)
@@ -49,8 +50,10 @@ export function saveStoredInquiries(inquiries: Inquiry[]): void {
 
   try {
     storage.setItem(INQUIRY_STORAGE_KEY, JSON.stringify(payload))
+    useMemoryFallback = false
   } catch {
     // 저장 공간이 부족하거나 접근이 차단된 환경에서는 메모리 저장소로 계속 동작한다.
+    useMemoryFallback = true
   }
 }
 
@@ -66,6 +69,10 @@ export function getStoredInquiries(): Inquiry[] {
   const storage = getBrowserStorage()
 
   if (storage) {
+    if (useMemoryFallback && memoryInquiries) {
+      return cloneInquiries(memoryInquiries)
+    }
+
     try {
       const rawValue = storage.getItem(INQUIRY_STORAGE_KEY)
 
