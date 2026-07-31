@@ -24,9 +24,16 @@ player-support-desk/
 │  │     └─ Navigation.vue
 │  ├─ mocks/
 │  │  ├─ browser.ts
-│  │  └─ handlers.ts
+│  │  ├─ data.ts
+│  │  ├─ handlers.ts
+│  │  └─ storage.ts
 │  ├─ router/
 │  │  └─ index.ts
+│  ├─ services/
+│  │  └─ api.ts
+│  ├─ types/
+│  │  ├─ api.ts
+│  │  └─ inquiry.ts
 │  ├─ views/
 │  │  ├─ DashboardView.vue
 │  │  ├─ InquiryListView.vue
@@ -40,6 +47,8 @@ player-support-desk/
 │  │  └─ DashboardView.spec.ts
 │  ├─ mocks/
 │  │  └─ server.ts
+│  ├─ integration/
+│  │  └─ mock-api.spec.ts
 │  └─ setup.ts
 ├─ eslint.config.js
 ├─ package.json
@@ -70,7 +79,20 @@ player-support-desk/
 
 - 브라우저와 테스트가 공유하는 MSW 요청 핸들러를 관리합니다.
 - `browser.ts`는 Service Worker 실행만 담당합니다.
-- 도메인 데이터, 저장소, REST 핸들러는 `feature/mock-api`에서 추가합니다.
+- `data.ts`는 상대 시각 기반 초기 문의 24건과 담당자를 구성합니다.
+- `storage.ts`는 버전이 있는 `localStorage` 영속화와 복구를 담당합니다.
+- `handlers.ts`는 조회·수정·입력 검증·오류·지연을 포함한 REST 경계를 담당합니다.
+
+### `src/services`
+
+- 화면과 Store가 사용하는 `fetch` 요청 함수를 관리합니다.
+- 실패 응답은 상태 코드와 오류 코드를 보존한 `ApiError`로 변환합니다.
+- 요청 함수는 `AbortSignal`을 전달할 수 있어 화면에서 오래된 요청을 취소할 수 있습니다.
+
+### `src/types`
+
+- 문의 도메인과 API 응답 계약을 한곳에서 관리합니다.
+- 상태·우선순위·카테고리는 문자열 리터럴 유니온과 런타임 검사 함수를 함께 제공합니다.
 
 ### `src/assets/styles`
 
