@@ -136,6 +136,7 @@ watch(
     const routeSearch = normalizedQuery.value.search
 
     if (searchInput.value !== routeSearch) {
+      clearTimeout(searchTimer)
       searchInput.value = routeSearch
     }
 

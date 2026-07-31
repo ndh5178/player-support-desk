@@ -340,4 +340,10 @@ function getInputValue(event: Event): string {
     grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
   }
 }
+
+@media (min-width: 75rem) and (max-width: 87.499rem) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

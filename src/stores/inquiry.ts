@@ -34,6 +34,10 @@ export const useInquiryStore = defineStore('inquiry', () => {
     try {
       const response = await getInquiries(query, controller.signal)
 
+      if (listRequestController !== controller) {
+        return
+      }
+
       inquiries.value = response.data
       pagination.value = response.pagination
     } catch (error) {
