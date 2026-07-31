@@ -21,11 +21,12 @@
 ## 2. ref와 reactive
 
 - 상태: 적용
-- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`, `src/components/inquiry/InquiryFilterBar.vue`
+- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`, `src/views/InquiryDetailView.vue`, `src/components/inquiry/InquiryFilterBar.vue`, `src/components/inquiry/InquiryManagementPanel.vue`
 - 적용 사례:
   - API 결과, 최초 로딩, 오류 메시지를 각각 `ref`로 관리했습니다.
   - Template에서는 `.value` 없이 값을 읽고, 스크립트에서 요청 결과를 변경할 때는 `.value`를 사용했습니다.
   - 문의 목록 검색 입력값과 모바일 필터 열림 여부를 화면에 가까운 로컬 `ref`로 관리했습니다.
+  - 상세 화면의 메모 입력·검증·성공 알림과 처리 폼의 선택값도 저장 전 로컬 `ref`로 유지했습니다.
 - React 비교:
   - `ref`는 `.value`를 통해 값을 변경하지만 Template에서는 자동으로 언래핑됩니다.
   - React의 `useState`는 setter로 새 값을 전달하고 다시 렌더링합니다.
@@ -33,11 +34,12 @@
 ## 3. computed
 
 - 상태: 적용
-- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`
+- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`, `src/views/InquiryDetailView.vue`, `src/components/inquiry/InquiryManagementPanel.vue`
 - 적용 사례:
   - API 응답의 통계 값을 요약 카드 Props 배열로 변환했습니다.
   - 원본 응답을 복사해 별도 상태로 유지하지 않고 `dashboard`가 바뀌면 카드 정보가 함께 갱신되게 했습니다.
   - 정규화한 URL Query, 활성화된 필터 개수, 빈 결과 안내 문구를 원본 상태에서 파생했습니다.
+  - 상세 API 오류가 404인지와 처리 폼에 실제 변경 사항이 있는지를 원본 상태에서 파생했습니다.
 - React 비교:
   - Vue `computed`는 반응형 의존성을 추적해 파생 값을 캐시합니다.
   - React에서는 일반 계산이나 `useMemo`를 상황에 따라 사용합니다.
@@ -45,10 +47,11 @@
 ## 4. watch와 watchEffect
 
 - 상태: 적용
-- 적용 파일: `src/views/InquiryListView.vue`
+- 적용 파일: `src/views/InquiryListView.vue`, `src/views/InquiryDetailView.vue`, `src/components/inquiry/InquiryManagementPanel.vue`
 - 적용 사례:
   - URL Query 변경을 관찰해 목록을 다시 조회하고 검색 입력값을 복원했습니다.
   - 검색 입력은 350ms 타이머가 지난 뒤 URL Query를 갱신하고, Query 변경이 실제 조회를 시작하게 했습니다.
+  - 상세 라우트 ID 변경을 관찰해 새 문의를 조회하고, 저장 성공으로 확정 원본이 바뀌면 처리 폼의 선택값을 동기화했습니다.
 - React 비교:
   - Vue `watch`는 명시한 반응형 소스의 변화를 관찰합니다.
   - `watchEffect`는 실행 중 읽은 반응형 의존성을 자동으로 추적합니다.
@@ -65,11 +68,14 @@
   - `src/components/common/ErrorState.vue`
   - `src/components/inquiry/InquiryFilterBar.vue`
   - `src/components/inquiry/PaginationControls.vue`
+  - `src/components/inquiry/InquiryManagementPanel.vue`
+  - `src/components/inquiry/InquiryNotes.vue`
 - 적용 사례:
   - 대시보드가 통계와 문의 배열을 Props로 전달하고 하위 컴포넌트는 이를 표시만 합니다.
   - `ErrorState`는 다시 시도 동작을 `retry`로 Emit하고 실제 API 재호출은 부모가 담당합니다.
   - 목록 화면이 필터 값을 Props로 전달하고 `InquiryFilterBar`는 검색·필터 변경과 초기화를 Emit합니다.
   - `PaginationControls`는 현재 페이지 정보를 받아 유효한 페이지 변경만 Emit합니다.
+  - 상세 처리와 메모 컴포넌트는 원본·저장 상태를 Props로 받고 저장 의도와 입력 변경을 Emit합니다.
 - React 비교:
   - Vue는 Props와 Emit으로 입력과 출력 계약을 구분합니다.
   - React는 Props로 값과 Callback을 함께 전달하는 방식이 일반적입니다.
@@ -81,6 +87,7 @@
 - 적용 사례:
   - 문의 목록, 페이지네이션, 로딩과 API 오류 상태를 관리합니다.
   - 이전 요청을 취소하고 요청 식별자를 비교해 늦게 도착한 응답이 최신 목록을 덮지 않게 했습니다.
+  - 상세 문의와 담당자, 저장 중 상태를 공유하고 상태·담당자·메모 변경 결과를 목록 항목에도 동기화했습니다.
 - React 비교:
   - Pinia Store는 state, getters, actions를 중심으로 공유 상태를 구성합니다.
   - React Context는 값을 트리에 공급하며, 복잡한 서버 상태나 액션은 별도 상태 관리 도구와 함께 사용하기도 합니다.
@@ -101,7 +108,7 @@
 
 ## 8. 생명주기와 정리
 
-- 상태: 일부 적용
+- 상태: 적용
 - 확인할 내용:
   - `onMounted`, `onUnmounted`
   - 요청 취소와 이벤트 리스너 정리
@@ -112,8 +119,7 @@
 - 적용 사례:
   - `src/components/layout/AppShell.vue`는 `resize` 이벤트 없이 미디어 쿼리로 상단 내비게이션과 데스크톱 사이드바를 전환합니다.
   - `src/views/DashboardView.vue`는 `onMounted`에서 조회를 시작하고 `onUnmounted`에서 진행 중인 요청을 취소합니다.
-- 이후 적용:
-  - 요청 취소나 직접 등록한 이벤트가 생기면 해당 생명주기와 정리 과정을 기록합니다.
+  - `src/views/InquiryDetailView.vue`는 라우트 ID 변경 시 조회하고 화면 이탈 시 상세 조회와 변경 요청을 취소하며 상태를 정리합니다.
 
 ## 9. TypeScript 데이터 모델링과 API 경계
 
