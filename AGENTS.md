@@ -9,9 +9,10 @@
 1. `docs/PROJECT_SPEC.md`
 2. `docs/IMPLEMENTATION_PLAN.md`
 3. `docs/WORK_UNITS.md`
-4. `docs/DECISIONS.md`
-5. `docs/GIT_WORKFLOW.md`
-6. 변경 범위와 관련된 `docs/LEARNING_NOTES.md`, `docs/QA_CHECKLIST.md`
+4. `docs/PROJECT_STRUCTURE.md`
+5. `docs/DECISIONS.md`
+6. `docs/GIT_WORKFLOW.md`
+7. 변경 범위와 관련된 `docs/LEARNING_NOTES.md`, `docs/QA_CHECKLIST.md`
 
 문서와 구현이 다르면 임의로 둘 중 하나를 무시하지 않습니다. 사용자의 최신 지시를 우선하고, 확정된 변경 사항을 관련 문서에 함께 반영합니다.
 

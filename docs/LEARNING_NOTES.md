@@ -6,12 +6,17 @@
 
 ## 1. Vue Single-File Component
 
-- 상태: 예정
-- 확인할 내용:
-  - `<script setup lang="ts">`, `<template>`, `<style scoped>`의 역할
-  - 하나의 SFC 안에서 로직, 마크업, 스타일을 함께 관리하는 방식
-  - React의 TSX 컴포넌트와 비교했을 때 Template이 갖는 차이
-- 적용 파일: 구현 후 기록
+- 상태: 적용
+- 적용 파일:
+  - `src/components/layout/AppShell.vue`
+  - `src/components/layout/Navigation.vue`
+  - `src/views/InquiryDetailView.vue`
+- 구현 경험:
+  - `<script setup lang="ts">`에서 컴포넌트 import와 라우트 접근 로직을 작성하고, `<template>`에서 선언적으로 화면 구조를 표현했습니다.
+  - 컴포넌트에만 필요한 반응형 레이아웃과 상태 스타일은 `<style scoped>`에 두고 전역 디자인 값은 CSS Token으로 분리했습니다.
+- React 비교:
+  - React TSX는 JavaScript 표현식 안에서 UI를 구성하지만 Vue SFC는 Template, 로직, 스타일의 역할이 구획으로 드러납니다.
+  - Vue Template에서는 `v-for`, `:to` 같은 Directive로 반복과 속성 바인딩을 표현합니다.
 
 ## 2. ref와 reactive
 
@@ -79,18 +84,20 @@
 
 ## 7. Vue Router
 
-- 상태: 예정
-- 사용할 사례:
-  - 대시보드, 문의 목록, 문의 상세 라우트
-  - 상세 화면 Lazy Loading
+- 상태: 일부 적용
+- 적용 파일: `src/router/index.ts`, `src/App.vue`
+- 적용 사례:
+  - 대시보드, 문의 목록, 문의 상세, 404 라우트 구성
+  - 상세와 404 화면을 동적 import로 Lazy Loading
+  - 라우트 `meta.title`을 이용한 문서 제목 변경
+- 이후 적용:
   - 문의 목록 필터와 URL Query 동기화
 - React 비교:
   - 라우트 구성 방식은 React Router와 유사하지만 Vue 컴포넌트와 Composition API용 Router 함수를 사용합니다.
-- 적용 파일: 구현 후 기록
 
 ## 8. 생명주기와 정리
 
-- 상태: 예정
+- 상태: 일부 적용
 - 확인할 내용:
   - `onMounted`, `onUnmounted`
   - 요청 취소와 이벤트 리스너 정리
@@ -98,7 +105,10 @@
 - 원칙:
   - 레이아웃 변경은 CSS로 처리합니다.
   - 이벤트를 등록한다면 같은 컴포넌트 생명주기에서 반드시 해제합니다.
-- 적용 파일: 구현 후 기록
+- 적용 사례:
+  - `src/components/layout/AppShell.vue`는 `resize` 이벤트 없이 미디어 쿼리로 상단 내비게이션과 데스크톱 사이드바를 전환합니다.
+- 이후 적용:
+  - 요청 취소나 직접 등록한 이벤트가 생기면 해당 생명주기와 정리 과정을 기록합니다.
 
 ## 9. 구현 후 답할 수 있어야 하는 질문
 
