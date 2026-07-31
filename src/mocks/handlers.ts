@@ -15,6 +15,7 @@ import {
   type InquirySort,
   type InquiryStatus,
 } from '../types/inquiry'
+import { cloneSerializable } from '../utils/clone'
 
 const API_ROOT = '/api'
 const MOCK_DELAY_MS = import.meta.env.MODE === 'test' ? 0 : 250
@@ -325,7 +326,7 @@ export const handlers: RequestHandler[] = [
       )
     }
 
-    const nextInquiry = structuredClone(inquiry)
+    const nextInquiry = cloneSerializable(inquiry)
     const histories: InquiryHistory[] = []
 
     if (hasStatus && body.status !== nextInquiry.status) {
@@ -407,7 +408,7 @@ export const handlers: RequestHandler[] = [
       author: currentAgent,
       createdAt,
     }
-    const nextInquiry = structuredClone(inquiry)
+    const nextInquiry = cloneSerializable(inquiry)
 
     nextInquiry.notes.push(note)
     nextInquiry.history.push({
