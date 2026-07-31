@@ -1,5 +1,10 @@
 <template>
-  <div class="detail-skeleton" aria-label="문의 상세 정보를 불러오는 중" role="status">
+  <div
+    class="detail-skeleton"
+    aria-label="문의 상세 정보를 불러오는 중"
+    role="status"
+    data-testid="inquiry-detail-skeleton"
+  >
     <span class="sr-only">문의 상세 정보를 불러오는 중입니다.</span>
 
     <div class="detail-skeleton__header">
