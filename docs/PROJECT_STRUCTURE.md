@@ -80,6 +80,7 @@ player-support-desk/
 │  ├─ mocks/
 │  │  └─ server.ts
 │  ├─ integration/
+│  │  ├─ core-flows.spec.ts
 │  │  └─ mock-api.spec.ts
 │  ├─ stores/
 │  │  └─ inquiry.spec.ts
