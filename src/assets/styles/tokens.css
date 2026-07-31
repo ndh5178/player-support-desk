@@ -23,6 +23,7 @@
   --color-text-muted: var(--color-neutral-500);
   --color-text-strong: var(--color-neutral-900);
   --color-focus: #1677d2;
+  --color-focus-on-dark: #70d5ff;
 
   --font-family-sans:
     Pretendard, 'Noto Sans KR', Inter, system-ui, -apple-system, BlinkMacSystemFont,

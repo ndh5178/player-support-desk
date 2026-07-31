@@ -1,7 +1,19 @@
+import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import DashboardView from '@/views/DashboardView.vue'
 import InquiryListView from '@/views/InquiryListView.vue'
+
+export async function focusPageHeading(): Promise<void> {
+  await nextTick()
+
+  const pageHeading = document.querySelector<HTMLElement>('#main-content h1')
+
+  if (pageHeading) {
+    pageHeading.tabIndex = -1
+    pageHeading.focus({ preventScroll: true })
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,9 +54,15 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-router.afterEach((to) => {
+router.afterEach(async (to, from) => {
   const title = typeof to.meta.title === 'string' ? to.meta.title : ''
   document.title = title ? `${title} | 플레이어 지원 데스크` : '플레이어 지원 데스크'
+
+  if (to.path === from.path) {
+    return
+  }
+
+  await focusPageHeading()
 })
 
 export default router

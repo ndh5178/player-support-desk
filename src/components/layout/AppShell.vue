@@ -5,12 +5,14 @@ import Navigation from './Navigation.vue'
 
 <template>
   <div class="app-shell">
-    <aside class="app-shell__sidebar">
+    <a class="skip-link" href="#main-content">본문 바로가기</a>
+
+    <aside class="app-shell__sidebar" aria-label="앱 내비게이션">
       <AppHeader />
       <Navigation />
     </aside>
 
-    <main id="main-content" class="app-shell__main">
+    <main id="main-content" class="app-shell__main" tabindex="-1">
       <div class="app-shell__content">
         <slot />
       </div>
@@ -21,6 +23,25 @@ import Navigation from './Navigation.vue'
 <style scoped>
 .app-shell {
   min-height: 100vh;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: var(--space-3);
+  left: var(--space-3);
+  min-height: 2.75rem;
+  padding: 0.625rem var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-0);
+  color: var(--color-brand-900);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-5)));
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 .app-shell__sidebar {
@@ -36,8 +57,16 @@ import Navigation from './Navigation.vue'
   color: var(--color-neutral-0);
 }
 
+.app-shell__sidebar :deep(:focus-visible) {
+  outline-color: var(--color-focus-on-dark);
+}
+
 .app-shell__main {
   min-width: 0;
+}
+
+.app-shell__main:focus {
+  outline: none;
 }
 
 .app-shell__content {
@@ -79,6 +108,12 @@ import Navigation from './Navigation.vue'
 
   .app-shell__content {
     padding: var(--space-10);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skip-link {
+    transition: transform 160ms ease;
   }
 }
 </style>
