@@ -70,7 +70,10 @@ player-support-desk/
 │  ├─ main.ts
 │  └─ vite-env.d.ts
 ├─ tests/
+│  ├─ accessibility/
+│  │  └─ color-contrast.spec.ts
 │  ├─ components/
+│  │  ├─ AppShell.spec.ts
 │  │  ├─ DashboardView.spec.ts
 │  │  ├─ InquiryDetailView.spec.ts
 │  │  └─ InquiryListView.spec.ts
@@ -104,11 +107,11 @@ player-support-desk/
 - `common`은 상태·우선순위 Badge와 오류·재시도처럼 여러 화면에서 재사용하는 UI입니다.
 - `dashboard`는 요약 카드, 최근 문의, 우선순위 분포, Skeleton처럼 운영 현황 화면에만 필요한 UI입니다.
 - `inquiry`는 검색·필터·목록과 상세 본문, 처리 폼, 운영 메모, 처리 이력, 로딩 UI를 담당합니다.
-- `layout`은 모든 화면이 공유하는 앱 셸과 내비게이션을 담당합니다.
+- `layout`은 모든 화면이 공유하는 앱 셸과 내비게이션, 본문 바로가기와 시맨틱 랜드마크를 담당합니다.
 
 ### `src/router`
 
-- URL, 화면 컴포넌트, 페이지 제목, 스크롤 복원을 관리합니다.
+- URL, 화면 컴포넌트, 페이지 제목, 스크롤 복원과 경로 이동 후 첫 제목 포커스를 관리합니다.
 - 서버 데이터나 화면 표시 로직을 넣지 않습니다.
 
 ### `src/mocks`
@@ -153,6 +156,7 @@ player-support-desk/
 
 ### `tests`
 
+- `accessibility`: 디자인 토큰과 상태·우선순위 색상 조합의 명도 대비
 - `components`: 하나의 컴포넌트 계약과 사용자 동작
 - `integration`: 여러 컴포넌트·Store·API를 잇는 사용자 흐름
 - `mocks`: Node 환경의 MSW 서버
