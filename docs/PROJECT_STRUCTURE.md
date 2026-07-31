@@ -29,9 +29,14 @@ player-support-desk/
 │  │  │  └─ RecentInquiryList.vue
 │  │  ├─ inquiry/
 │  │  │  ├─ InquiryCardList.vue
+│  │  │  ├─ InquiryDetailSkeleton.vue
 │  │  │  ├─ InquiryFilterBar.vue
 │  │  │  ├─ InquiryListSkeleton.vue
+│  │  │  ├─ InquiryManagementPanel.vue
+│  │  │  ├─ InquiryNotes.vue
+│  │  │  ├─ InquiryOverview.vue
 │  │  │  ├─ InquiryTable.vue
+│  │  │  ├─ InquiryTimeline.vue
 │  │  │  └─ PaginationControls.vue
 │  │  └─ layout/
 │  │     ├─ AppShell.vue
@@ -67,6 +72,7 @@ player-support-desk/
 ├─ tests/
 │  ├─ components/
 │  │  ├─ DashboardView.spec.ts
+│  │  ├─ InquiryDetailView.spec.ts
 │  │  └─ InquiryListView.spec.ts
 │  ├─ mocks/
 │  │  └─ server.ts
@@ -97,7 +103,7 @@ player-support-desk/
 - 부모에게 받은 값은 Props로 사용하고 사용자 동작은 Emit으로 전달합니다.
 - `common`은 상태·우선순위 Badge와 오류·재시도처럼 여러 화면에서 재사용하는 UI입니다.
 - `dashboard`는 요약 카드, 최근 문의, 우선순위 분포, Skeleton처럼 운영 현황 화면에만 필요한 UI입니다.
-- `inquiry`는 검색·필터, 데스크톱 테이블, 모바일 카드, 페이지네이션, 목록 Skeleton을 담당합니다.
+- `inquiry`는 검색·필터·목록과 상세 본문, 처리 폼, 운영 메모, 처리 이력, 로딩 UI를 담당합니다.
 - `layout`은 모든 화면이 공유하는 앱 셸과 내비게이션을 담당합니다.
 
 ### `src/router`
@@ -121,8 +127,9 @@ player-support-desk/
 
 ### `src/stores`
 
-- 여러 문의 화면이 공유할 목록 데이터와 페이지네이션, 로딩·오류 상태를 Pinia로 관리합니다.
+- 여러 문의 화면이 공유할 목록·상세 데이터와 페이지네이션, 조회·변경 상태를 Pinia로 관리합니다.
 - 새 조회를 시작하면 이전 요청을 취소하고 요청 식별자를 확인해 오래된 응답이 최신 상태를 덮지 않게 합니다.
+- 상태·담당자·메모 변경 결과를 상세 원본과 이미 조회한 목록 항목에 함께 반영합니다.
 - 검색 입력과 모바일 필터 열림 여부처럼 화면에만 필요한 값은 Store에 넣지 않습니다.
 
 ### `src/types`
