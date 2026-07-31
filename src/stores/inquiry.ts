@@ -37,7 +37,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
       inquiries.value = response.data
       pagination.value = response.pagination
     } catch (error) {
-      if (isAbortError(error)) {
+      if (listRequestController !== controller || isAbortError(error)) {
         return
       }
 
