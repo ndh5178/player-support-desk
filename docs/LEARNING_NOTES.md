@@ -20,93 +20,82 @@
 
 ## 2. ref와 reactive
 
-- 상태: 일부 적용
-- 적용 파일: `src/views/DashboardView.vue`
+- 상태: 적용
+- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`, `src/components/inquiry/InquiryFilterBar.vue`
 - 적용 사례:
   - API 결과, 최초 로딩, 오류 메시지를 각각 `ref`로 관리했습니다.
   - Template에서는 `.value` 없이 값을 읽고, 스크립트에서 요청 결과를 변경할 때는 `.value`를 사용했습니다.
-- 사용할 사례:
-  - 검색 입력값
-  - 운영 메모
-  - 모바일 필터 열림 여부
+  - 문의 목록 검색 입력값과 모바일 필터 열림 여부를 화면에 가까운 로컬 `ref`로 관리했습니다.
 - React 비교:
   - `ref`는 `.value`를 통해 값을 변경하지만 Template에서는 자동으로 언래핑됩니다.
   - React의 `useState`는 setter로 새 값을 전달하고 다시 렌더링합니다.
-- 적용 파일: 구현 후 기록
 
 ## 3. computed
 
-- 상태: 일부 적용
-- 적용 파일: `src/views/DashboardView.vue`
+- 상태: 적용
+- 적용 파일: `src/views/DashboardView.vue`, `src/views/InquiryListView.vue`
 - 적용 사례:
   - API 응답의 통계 값을 요약 카드 Props 배열로 변환했습니다.
   - 원본 응답을 복사해 별도 상태로 유지하지 않고 `dashboard`가 바뀌면 카드 정보가 함께 갱신되게 했습니다.
-- 사용할 사례:
-  - 활성화된 필터 개수
-  - 문의 상태에 따른 표시 정보
-  - Store 데이터를 기반으로 한 파생 상태
+  - 정규화한 URL Query, 활성화된 필터 개수, 빈 결과 안내 문구를 원본 상태에서 파생했습니다.
 - React 비교:
   - Vue `computed`는 반응형 의존성을 추적해 파생 값을 캐시합니다.
   - React에서는 일반 계산이나 `useMemo`를 상황에 따라 사용합니다.
-- 적용 파일: 구현 후 기록
 
 ## 4. watch와 watchEffect
 
-- 상태: 예정
-- 사용할 사례:
-  - URL Query Parameter 변경에 맞춘 목록 재조회
-  - 검색어 Debounce 이후 Query 갱신
+- 상태: 적용
+- 적용 파일: `src/views/InquiryListView.vue`
+- 적용 사례:
+  - URL Query 변경을 관찰해 목록을 다시 조회하고 검색 입력값을 복원했습니다.
+  - 검색 입력은 350ms 타이머가 지난 뒤 URL Query를 갱신하고, Query 변경이 실제 조회를 시작하게 했습니다.
 - React 비교:
   - Vue `watch`는 명시한 반응형 소스의 변화를 관찰합니다.
   - `watchEffect`는 실행 중 읽은 반응형 의존성을 자동으로 추적합니다.
   - React `useEffect`는 렌더링 이후 외부 시스템과 동기화하고 의존성 배열을 사용합니다.
 - 주의:
   - 파생 값 계산을 위해 `watch`를 남용하지 않고 `computed`를 우선합니다.
-- 적용 파일: 구현 후 기록
 
 ## 5. Props와 Emit
 
-- 상태: 일부 적용
+- 상태: 적용
 - 적용 파일:
   - `src/components/dashboard/DashboardSummaryCard.vue`
   - `src/components/dashboard/RecentInquiryList.vue`
   - `src/components/common/ErrorState.vue`
+  - `src/components/inquiry/InquiryFilterBar.vue`
+  - `src/components/inquiry/PaginationControls.vue`
 - 적용 사례:
   - 대시보드가 통계와 문의 배열을 Props로 전달하고 하위 컴포넌트는 이를 표시만 합니다.
   - `ErrorState`는 다시 시도 동작을 `retry`로 Emit하고 실제 API 재호출은 부모가 담당합니다.
-- 사용할 사례:
-  - 목록 화면이 필터 값을 `InquiryFilterBar`에 Props로 전달
-  - 필터 컴포넌트가 변경 내용을 Emit
-  - 상태 선택 컴포넌트가 선택 결과를 부모에 전달
+  - 목록 화면이 필터 값을 Props로 전달하고 `InquiryFilterBar`는 검색·필터 변경과 초기화를 Emit합니다.
+  - `PaginationControls`는 현재 페이지 정보를 받아 유효한 페이지 변경만 Emit합니다.
 - React 비교:
   - Vue는 Props와 Emit으로 입력과 출력 계약을 구분합니다.
   - React는 Props로 값과 Callback을 함께 전달하는 방식이 일반적입니다.
-- 적용 파일: 구현 후 기록
 
 ## 6. Pinia
 
-- 상태: 예정
-- 사용할 사례:
-  - 문의 목록과 상세 조회
-  - 상태·담당자 변경 이후 공유 데이터 갱신
-  - 로딩과 API 오류 상태
+- 상태: 적용
+- 적용 파일: `src/stores/inquiry.ts`
+- 적용 사례:
+  - 문의 목록, 페이지네이션, 로딩과 API 오류 상태를 관리합니다.
+  - 이전 요청을 취소하고 요청 식별자를 비교해 늦게 도착한 응답이 최신 목록을 덮지 않게 했습니다.
 - React 비교:
   - Pinia Store는 state, getters, actions를 중심으로 공유 상태를 구성합니다.
   - React Context는 값을 트리에 공급하며, 복잡한 서버 상태나 액션은 별도 상태 관리 도구와 함께 사용하기도 합니다.
 - 주의:
   - 메모 입력값처럼 지역적인 값은 Store에 넣지 않습니다.
-- 적용 파일: 구현 후 기록
 
 ## 7. Vue Router
 
-- 상태: 일부 적용
-- 적용 파일: `src/router/index.ts`, `src/App.vue`
+- 상태: 적용
+- 적용 파일: `src/router/index.ts`, `src/App.vue`, `src/views/InquiryListView.vue`, `src/utils/inquiry-query.ts`
 - 적용 사례:
   - 대시보드, 문의 목록, 문의 상세, 404 라우트 구성
   - 상세와 404 화면을 동적 import로 Lazy Loading
   - 라우트 `meta.title`을 이용한 문서 제목 변경
-- 이후 적용:
-  - 문의 목록 필터와 URL Query 동기화
+  - 문의 목록 필터를 URL Query와 동기화하고 새로고침·앞뒤 이동 시 조건을 복원
 - React 비교:
   - 라우트 구성 방식은 React Router와 유사하지만 Vue 컴포넌트와 Composition API용 Router 함수를 사용합니다.
 

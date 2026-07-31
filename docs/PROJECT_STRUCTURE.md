@@ -27,6 +27,12 @@ player-support-desk/
 │  │  │  ├─ DashboardSummaryCard.vue
 │  │  │  ├─ PriorityDistribution.vue
 │  │  │  └─ RecentInquiryList.vue
+│  │  ├─ inquiry/
+│  │  │  ├─ InquiryCardList.vue
+│  │  │  ├─ InquiryFilterBar.vue
+│  │  │  ├─ InquiryListSkeleton.vue
+│  │  │  ├─ InquiryTable.vue
+│  │  │  └─ PaginationControls.vue
 │  │  └─ layout/
 │  │     ├─ AppShell.vue
 │  │     ├─ AppHeader.vue
@@ -40,12 +46,15 @@ player-support-desk/
 │  │  └─ index.ts
 │  ├─ services/
 │  │  └─ api.ts
+│  ├─ stores/
+│  │  └─ inquiry.ts
 │  ├─ types/
 │  │  ├─ api.ts
 │  │  └─ inquiry.ts
 │  ├─ utils/
 │  │  ├─ clone.ts
 │  │  ├─ date.ts
+│  │  ├─ inquiry-query.ts
 │  │  └─ inquiry.ts
 │  ├─ views/
 │  │  ├─ DashboardView.vue
@@ -57,11 +66,14 @@ player-support-desk/
 │  └─ vite-env.d.ts
 ├─ tests/
 │  ├─ components/
-│  │  └─ DashboardView.spec.ts
+│  │  ├─ DashboardView.spec.ts
+│  │  └─ InquiryListView.spec.ts
 │  ├─ mocks/
 │  │  └─ server.ts
 │  ├─ integration/
 │  │  └─ mock-api.spec.ts
+│  ├─ stores/
+│  │  └─ inquiry.spec.ts
 │  ├─ utils/
 │  │  └─ clone.spec.ts
 │  └─ setup.ts
@@ -85,6 +97,7 @@ player-support-desk/
 - 부모에게 받은 값은 Props로 사용하고 사용자 동작은 Emit으로 전달합니다.
 - `common`은 상태·우선순위 Badge와 오류·재시도처럼 여러 화면에서 재사용하는 UI입니다.
 - `dashboard`는 요약 카드, 최근 문의, 우선순위 분포, Skeleton처럼 운영 현황 화면에만 필요한 UI입니다.
+- `inquiry`는 검색·필터, 데스크톱 테이블, 모바일 카드, 페이지네이션, 목록 Skeleton을 담당합니다.
 - `layout`은 모든 화면이 공유하는 앱 셸과 내비게이션을 담당합니다.
 
 ### `src/router`
@@ -106,6 +119,12 @@ player-support-desk/
 - 실패 응답은 상태 코드와 오류 코드를 보존한 `ApiError`로 변환합니다.
 - 요청 함수는 `AbortSignal`을 전달할 수 있어 화면에서 오래된 요청을 취소할 수 있습니다.
 
+### `src/stores`
+
+- 여러 문의 화면이 공유할 목록 데이터와 페이지네이션, 로딩·오류 상태를 Pinia로 관리합니다.
+- 새 조회를 시작하면 이전 요청을 취소하고 요청 식별자를 확인해 오래된 응답이 최신 상태를 덮지 않게 합니다.
+- 검색 입력과 모바일 필터 열림 여부처럼 화면에만 필요한 값은 Store에 넣지 않습니다.
+
 ### `src/types`
 
 - 문의 도메인과 API 응답 계약을 한곳에서 관리합니다.
@@ -114,6 +133,7 @@ player-support-desk/
 ### `src/utils`
 
 - `inquiry.ts`는 도메인 코드와 한글 표시 문구를 연결합니다.
+- `inquiry-query.ts`는 URL Query를 검증·정규화하고 API Query와 공유 가능한 URL 형식으로 변환합니다.
 - `date.ts`는 문의 시각을 상대 시각과 접근 가능한 절대 시각으로 변환합니다.
 - `clone.ts`는 JSON 직렬화 가능한 Mock 데이터의 독립된 복사본을 만들며 `structuredClone` 미지원 환경을 보완합니다.
 
