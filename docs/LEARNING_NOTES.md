@@ -20,7 +20,11 @@
 
 ## 2. ref와 reactive
 
-- 상태: 예정
+- 상태: 일부 적용
+- 적용 파일: `src/views/DashboardView.vue`
+- 적용 사례:
+  - API 결과, 최초 로딩, 오류 메시지를 각각 `ref`로 관리했습니다.
+  - Template에서는 `.value` 없이 값을 읽고, 스크립트에서 요청 결과를 변경할 때는 `.value`를 사용했습니다.
 - 사용할 사례:
   - 검색 입력값
   - 운영 메모
@@ -32,7 +36,11 @@
 
 ## 3. computed
 
-- 상태: 예정
+- 상태: 일부 적용
+- 적용 파일: `src/views/DashboardView.vue`
+- 적용 사례:
+  - API 응답의 통계 값을 요약 카드 Props 배열로 변환했습니다.
+  - 원본 응답을 복사해 별도 상태로 유지하지 않고 `dashboard`가 바뀌면 카드 정보가 함께 갱신되게 했습니다.
 - 사용할 사례:
   - 활성화된 필터 개수
   - 문의 상태에 따른 표시 정보
@@ -58,7 +66,14 @@
 
 ## 5. Props와 Emit
 
-- 상태: 예정
+- 상태: 일부 적용
+- 적용 파일:
+  - `src/components/dashboard/DashboardSummaryCard.vue`
+  - `src/components/dashboard/RecentInquiryList.vue`
+  - `src/components/common/ErrorState.vue`
+- 적용 사례:
+  - 대시보드가 통계와 문의 배열을 Props로 전달하고 하위 컴포넌트는 이를 표시만 합니다.
+  - `ErrorState`는 다시 시도 동작을 `retry`로 Emit하고 실제 API 재호출은 부모가 담당합니다.
 - 사용할 사례:
   - 목록 화면이 필터 값을 `InquiryFilterBar`에 Props로 전달
   - 필터 컴포넌트가 변경 내용을 Emit
@@ -107,6 +122,7 @@
   - 이벤트를 등록한다면 같은 컴포넌트 생명주기에서 반드시 해제합니다.
 - 적용 사례:
   - `src/components/layout/AppShell.vue`는 `resize` 이벤트 없이 미디어 쿼리로 상단 내비게이션과 데스크톱 사이드바를 전환합니다.
+  - `src/views/DashboardView.vue`는 `onMounted`에서 조회를 시작하고 `onUnmounted`에서 진행 중인 요청을 취소합니다.
 - 이후 적용:
   - 요청 취소나 직접 등록한 이벤트가 생기면 해당 생명주기와 정리 과정을 기록합니다.
 
