@@ -202,8 +202,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     mutationErrorMessage.value = ''
 
     try {
-      await addInquiryNote(inquiryId, { content }, controller.signal)
-      const inquiry = await getInquiry(inquiryId, controller.signal)
+      const note = await addInquiryNote(inquiryId, { content }, controller.signal)
 
       if (
         mutationRequestController !== controller ||
@@ -212,7 +211,21 @@ export const useInquiryStore = defineStore('inquiry', () => {
         return false
       }
 
-      syncInquiry(inquiry)
+      syncInquiry({
+        ...currentInquiry.value,
+        updatedAt: note.createdAt,
+        notes: [...currentInquiry.value.notes, note],
+        history: [
+          ...currentInquiry.value.history,
+          {
+            id: `${note.id}-history`,
+            type: 'NOTE_ADDED',
+            actorName: note.author.name,
+            description: '내부 메모를 추가했습니다.',
+            createdAt: note.createdAt,
+          },
+        ],
+      })
       return true
     } catch (error) {
       if (mutationRequestController !== controller || isAbortError(error)) {

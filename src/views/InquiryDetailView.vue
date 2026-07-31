@@ -50,6 +50,12 @@ function resetLocalState(): void {
 
 async function loadInquiry(): Promise<void> {
   resetLocalState()
+
+  if (!inquiryId.value) {
+    inquiryStore.resetInquiryDetail()
+    return
+  }
+
   await inquiryStore.fetchInquiryDetail(inquiryId.value)
 }
 
