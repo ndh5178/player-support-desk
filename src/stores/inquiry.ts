@@ -143,9 +143,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     }
   }
 
-  async function saveInquiryChanges(
-    payload: UpdateInquiryRequest,
-  ): Promise<boolean> {
+  async function saveInquiryChanges(payload: UpdateInquiryRequest): Promise<boolean> {
     if (!currentInquiry.value || isUpdatingInquiry.value || isAddingNote.value) {
       return false
     }
