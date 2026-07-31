@@ -126,6 +126,7 @@
 | Method | Endpoint | 역할 |
 | --- | --- | --- |
 | `GET` | `/api/dashboard` | 대시보드 통계 조회 |
+| `GET` | `/api/agents` | 배정 가능한 담당자 목록 조회 |
 | `GET` | `/api/inquiries` | 문의 검색·필터·정렬·페이지 조회 |
 | `GET` | `/api/inquiries/:id` | 문의 상세 조회 |
 | `PATCH` | `/api/inquiries/:id` | 상태 또는 담당자 변경 |
@@ -142,6 +143,11 @@
 - `limit`
 
 API는 MSW로 구현하지만 애플리케이션에서는 실제 REST API와 동일하게 `fetch`로 호출합니다. 변경된 가상 데이터는 `localStorage`에 저장해 새로고침 후에도 유지합니다.
+
+- 목록은 `{ data, pagination }`, 담당자는 `{ data }` 형태로 반환합니다.
+- 실패 응답은 `{ error: { code, message, details? } }` 형태로 통일합니다.
+- 목록의 기본값은 최신순, 1페이지, 페이지당 10건이며 `limit`은 최대 50입니다.
+- 메모는 공백 제거 후 1자 이상 1,000자 이하만 허용합니다.
 
 ## 8. 상태 관리
 
