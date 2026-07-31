@@ -1,5 +1,6 @@
 import { createSeedInquiries } from './data'
 import type { Inquiry } from '../types/inquiry'
+import { cloneSerializable } from '../utils/clone'
 
 export const INQUIRY_STORAGE_KEY = 'player-support-desk:inquiries:v1'
 
@@ -12,7 +13,7 @@ let memoryInquiries: Inquiry[] | null = null
 let useMemoryFallback = false
 
 function cloneInquiries(inquiries: Inquiry[]): Inquiry[] {
-  return structuredClone(inquiries)
+  return cloneSerializable(inquiries)
 }
 
 function getBrowserStorage(): Storage | null {
