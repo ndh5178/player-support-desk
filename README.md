@@ -1,33 +1,35 @@
-# Player Support Desk
+# Player Support Desk — BATTLEGROUNDS UI Concept
 
-> Vue 3와 TypeScript로 구현한 반응형 게임 고객 문의 운영 대시보드
+> Vue 3와 TypeScript로 구현한 배틀그라운드 플레이어 지원 운영 대시보드 콘셉트
 
-가상의 글로벌 게임 서비스에서 운영 담당자가 문의 현황을 파악하고, 검색·분류·처리하는 흐름을 구현한 프론트엔드 포트폴리오 프로젝트입니다. React 프로젝트 경험을 Vue의 Composition API, Template, Pinia와 연결해 학습하고 실제 동작과 테스트 결과로 검증하는 데 초점을 맞췄습니다.
+배틀그라운드 플레이어 지원 업무를 가정해 운영 담당자가 문의 현황을 파악하고, 검색·분류·처리하는 흐름을 구현한 프론트엔드 포트폴리오 프로젝트입니다. React 프로젝트 경험을 Vue의 Composition API, Template, Pinia와 연결해 학습하고 실제 동작과 테스트 결과로 검증하는 데 초점을 맞췄습니다.
 
-- 한글 이름: **플레이어 지원 데스크**
+> 이 프로젝트는 학습 및 포트폴리오를 위한 비공식 UI 콘셉트이며, KRAFTON 또는 PUBG Studios의 공식 서비스가 아닙니다. 공식 로고와 게임 이미지는 사용하지 않았습니다.
+
+- 콘셉트 이름: **BATTLEGROUNDS Player Support Ops**
 - 구현 및 검증: **2026-07-31**
 - 주요 사용자: 접수된 고객 문의를 조회하고 처리하는 운영 담당자
-- 데이터: 실제 회사·게임 정보가 아닌 가상의 문의 24건
+- 데이터: 실제 이용자 정보가 아닌 가상의 플레이어 문의 24건
 
 ## 대표 화면
 
-### 운영 현황 대시보드
+### 전황 대시보드
 
 전체·신규·처리 중·SLA 지연 문의와 최근 접수 문의, 우선순위 분포를 한 화면에서 확인합니다.
 
-![운영 현황 대시보드](docs/images/dashboard-desktop.png)
+![배틀그라운드 플레이어 지원 전황 대시보드](docs/images/dashboard-desktop.png)
 
-### 검색과 필터가 가능한 문의 목록
+### 검색과 필터가 가능한 플레이어 문의 큐
 
 문의 번호·제목·고객 검색, 상태·우선순위·카테고리 필터, 정렬과 페이지네이션을 지원합니다.
 
-![문의 목록 데스크톱 화면](docs/images/inquiry-list-desktop.png)
+![플레이어 문의 큐 데스크톱 화면](docs/images/inquiry-list-desktop.png)
 
-### 모바일 문의 상세와 처리
+### 모바일 케이스 상세와 대응
 
 모바일에서는 문의 내용, 처리 폼, 고객 정보, 운영 메모와 처리 이력을 한 열의 작업 순서로 제공합니다.
 
-<img src="docs/images/inquiry-detail-mobile.png" alt="모바일 문의 상세와 처리 화면" width="390" />
+<img src="docs/images/inquiry-detail-mobile.png" alt="모바일 플레이어 지원 케이스 상세와 대응 화면" width="390" />
 
 ## 핵심 사용자 흐름
 
@@ -158,7 +160,7 @@ npm install
 npm run dev
 ```
 
-기본 개발 주소는 Vite가 출력하는 로컬 URL입니다. 브라우저의 `player-support-desk:inquiries:v1` 저장 값에 변경된 가상 문의가 유지됩니다.
+기본 개발 주소는 Vite가 출력하는 로컬 URL입니다. 브라우저의 `player-support-desk:inquiries:v2` 저장 값에 변경된 가상 문의가 유지됩니다.
 
 ## 프로젝트 구조
 

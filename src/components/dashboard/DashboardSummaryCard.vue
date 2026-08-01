@@ -41,29 +41,53 @@ defineProps<{
   min-width: 0;
   padding: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
   background: rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
 
+.summary-card::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0.1875rem;
+  background: var(--card-accent);
+  content: '';
+}
+
+.summary-card::after {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  content: '';
+  transform: translate(50%, -50%) rotate(45deg);
+}
+
 .summary-card--neutral {
-  --card-accent: #4b626d;
-  --card-tint: #edf1f3;
+  --card-accent: #565d51;
+  --card-tint: #ecebe4;
 }
 
 .summary-card--info {
-  --card-accent: #236cac;
-  --card-tint: #e8f3ff;
+  --card-accent: #356f98;
+  --card-tint: #e6eff5;
 }
 
 .summary-card--progress {
-  --card-accent: #9a6200;
-  --card-tint: #fff3d6;
+  --card-accent: #9a690d;
+  --card-tint: #fbefd2;
 }
 
 .summary-card--danger {
-  --card-accent: #a32431;
-  --card-tint: #fdebed;
+  --card-accent: #a33432;
+  --card-tint: #f8e8e5;
 }
 
 .summary-card__heading {

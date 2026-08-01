@@ -16,12 +16,12 @@ defineProps<{
   <div class="inquiry-table">
     <table>
       <caption>
-        접수된 고객 문의 목록
+        접수된 플레이어 지원 케이스 목록
       </caption>
       <thead>
         <tr>
-          <th scope="col">문의</th>
-          <th scope="col">고객</th>
+          <th scope="col">케이스</th>
+          <th scope="col">플레이어</th>
           <th scope="col">우선순위</th>
           <th scope="col">상태</th>
           <th scope="col">접수 시각</th>
@@ -76,7 +76,7 @@ defineProps<{
   display: none;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: rgb(255 255 255 / 94%);
   box-shadow: var(--shadow-sm);
 }
@@ -99,11 +99,11 @@ caption {
 th {
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  background: var(--color-neutral-50);
-  color: var(--color-text-muted);
+  background: var(--color-tactical-800);
+  color: rgb(255 255 255 / 68%);
   font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-align: left;
   white-space: nowrap;
 }
@@ -126,6 +126,7 @@ tbody tr {
 
 tbody tr:hover {
   background: var(--color-brand-50);
+  box-shadow: inset 0.1875rem 0 var(--color-brand-500);
 }
 
 .inquiry-cell {
@@ -169,8 +170,8 @@ tbody tr:hover {
 .inquiry-cell small {
   flex: 0 0 auto;
   padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  background: var(--color-neutral-100);
+  border-radius: 0.125rem;
+  background: var(--color-brand-50);
   color: var(--color-text-muted);
   font-size: 0.6875rem;
   font-weight: 700;

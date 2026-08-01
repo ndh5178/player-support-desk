@@ -154,10 +154,12 @@ onUnmounted(() => {
 <template>
   <div class="page inquiry-list-page">
     <header class="page-header">
-      <p class="page-header__eyebrow">Inquiry management</p>
-      <h1>문의 관리</h1>
+      <div class="page-header__context">
+        <span>KR / PC</span>
+      </div>
+      <h1>플레이어 문의 큐</h1>
       <p class="page-header__description">
-        접수된 문의를 검색하고 상태, 우선순위, 카테고리별로 분류합니다.
+        접수된 배틀그라운드 문의를 검색하고 대응 상태와 우선순위를 관리합니다.
       </p>
     </header>
 
@@ -183,10 +185,7 @@ onUnmounted(() => {
       :aria-busy="isListLoading"
     >
       <div class="inquiry-results__heading">
-        <div>
-          <p class="inquiry-results__eyebrow">All inquiries</p>
-          <h2 id="inquiry-results-title">문의 목록</h2>
-        </div>
+        <h2 id="inquiry-results-title">전체 케이스</h2>
         <p v-if="!isListLoading && !listErrorMessage" aria-live="polite">
           총 {{ pagination.total.toLocaleString('ko-KR') }}건
         </p>
@@ -232,6 +231,23 @@ onUnmounted(() => {
   gap: var(--space-6);
 }
 
+.page-header__context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.page-header__context span {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  background: rgb(255 255 255 / 50%);
+  color: var(--color-text-muted);
+  font-size: 0.625rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+}
+
 .inquiry-results {
   display: grid;
   gap: var(--space-4);
@@ -242,15 +258,6 @@ onUnmounted(() => {
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
-}
-
-.inquiry-results__eyebrow {
-  margin-bottom: var(--space-1);
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .inquiry-results h2 {

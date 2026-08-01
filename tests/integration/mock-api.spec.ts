@@ -125,6 +125,6 @@ describe('문의 Mock REST API', () => {
     window.localStorage.setItem(INQUIRY_STORAGE_KEY, '{broken-json')
 
     expect(getStoredInquiries()).toHaveLength(24)
-    expect(window.localStorage.getItem(INQUIRY_STORAGE_KEY)).toContain('"version":1')
+    expect(window.localStorage.getItem(INQUIRY_STORAGE_KEY)).toContain('"version":2')
   })
 })

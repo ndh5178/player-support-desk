@@ -13,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-  <ul class="inquiry-cards" aria-label="접수된 고객 문의 목록">
+  <ul class="inquiry-cards" aria-label="접수된 플레이어 지원 케이스 목록">
     <li v-for="inquiry in inquiries" :key="inquiry.id">
       <RouterLink
         :to="`/inquiries/${inquiry.id}`"
@@ -33,7 +33,7 @@ defineProps<{
 
         <dl>
           <div>
-            <dt>고객</dt>
+            <dt>플레이어</dt>
             <dd>{{ inquiry.customer.nickname }}</dd>
           </div>
           <div>
@@ -58,7 +58,7 @@ defineProps<{
         </dl>
 
         <span class="inquiry-card__action">
-          상세 보기
+          케이스 열기
           <span aria-hidden="true">→</span>
         </span>
       </RouterLink>
@@ -78,10 +78,17 @@ defineProps<{
   gap: var(--space-4);
   padding: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: rgb(255 255 255 / 94%);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
+}
+
+.inquiry-cards > li > a:hover {
+  border-color: var(--color-brand-500);
+  box-shadow:
+    inset 0.1875rem 0 var(--color-brand-500),
+    var(--shadow-md);
 }
 
 .inquiry-card__meta,

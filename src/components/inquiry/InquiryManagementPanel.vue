@@ -54,7 +54,6 @@ function submitChanges(): void {
   <section class="management-panel" aria-labelledby="management-panel-title">
     <div class="management-panel__heading">
       <div>
-        <p>Workflow</p>
         <h2 id="management-panel-title">문의 처리</h2>
       </div>
       <span :class="{ 'management-panel__state--assigned': inquiry.assignee }">
@@ -110,7 +109,7 @@ function submitChanges(): void {
 .management-panel {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
@@ -122,15 +121,8 @@ function submitChanges(): void {
   align-items: center;
   padding: var(--space-5);
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(135deg, var(--color-brand-50), var(--color-surface));
-}
-
-.management-panel__heading p {
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  background:
+    linear-gradient(90deg, rgb(214 165 47 / 16%), transparent 48%), var(--color-surface);
 }
 
 .management-panel h2 {

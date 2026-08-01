@@ -2,10 +2,10 @@ import { createSeedInquiries } from './data'
 import type { Inquiry } from '../types/inquiry'
 import { cloneSerializable } from '../utils/clone'
 
-export const INQUIRY_STORAGE_KEY = 'player-support-desk:inquiries:v1'
+export const INQUIRY_STORAGE_KEY = 'player-support-desk:inquiries:v2'
 
 interface StoredInquiryData {
-  version: 1
+  version: 2
   inquiries: Inquiry[]
 }
 
@@ -31,7 +31,7 @@ function isStoredInquiryData(value: unknown): value is StoredInquiryData {
 
   const candidate = value as Partial<StoredInquiryData>
 
-  return candidate.version === 1 && Array.isArray(candidate.inquiries)
+  return candidate.version === 2 && Array.isArray(candidate.inquiries)
 }
 
 export function saveStoredInquiries(inquiries: Inquiry[]): void {
@@ -45,7 +45,7 @@ export function saveStoredInquiries(inquiries: Inquiry[]): void {
   }
 
   const payload: StoredInquiryData = {
-    version: 1,
+    version: 2,
     inquiries: nextInquiries,
   }
 

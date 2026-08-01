@@ -16,11 +16,10 @@ defineProps<{
   <section class="panel recent-inquiries" aria-labelledby="recent-inquiries-title">
     <div class="panel__heading">
       <div>
-        <p class="panel__eyebrow">Recent</p>
         <h2 id="recent-inquiries-title">최근 접수 문의</h2>
       </div>
       <RouterLink class="panel__link" to="/inquiries">
-        전체 보기
+        전체 큐 보기
         <span aria-hidden="true">→</span>
       </RouterLink>
     </div>
@@ -69,7 +68,7 @@ defineProps<{
 .panel {
   min-width: 0;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
@@ -81,15 +80,8 @@ defineProps<{
   gap: var(--space-4);
   padding: var(--space-5);
   border-bottom: 1px solid var(--color-border);
-}
-
-.panel__eyebrow {
-  margin-bottom: var(--space-1);
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  background:
+    linear-gradient(90deg, rgb(214 165 47 / 8%), transparent 32%), rgb(255 255 255 / 45%);
 }
 
 .panel h2 {
@@ -131,6 +123,7 @@ defineProps<{
 
 .inquiry-row:hover {
   background: var(--color-brand-50);
+  box-shadow: inset 0.1875rem 0 var(--color-brand-500);
 }
 
 .inquiry-row__main {

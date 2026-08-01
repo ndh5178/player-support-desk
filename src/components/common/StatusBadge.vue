@@ -25,7 +25,8 @@ const label = computed(() => getStatusLabel(props.status))
   gap: 0.375rem;
   width: fit-content;
   padding: 0.3125rem 0.625rem;
-  border-radius: 999px;
+  border: 1px solid var(--status-border);
+  border-radius: 0.1875rem;
   background: var(--status-background);
   color: var(--status-color);
   font-size: 0.75rem;
@@ -42,21 +43,25 @@ const label = computed(() => getStatusLabel(props.status))
 }
 
 .status-badge--new {
+  --status-border: #bfd9ee;
   --status-background: #e8f3ff;
   --status-color: #155da1;
 }
 
 .status-badge--in_progress {
+  --status-border: #e6cc8d;
   --status-background: #fff3d6;
   --status-color: #8a5700;
 }
 
 .status-badge--waiting_customer {
+  --status-border: #d3c6ee;
   --status-background: #f0ebff;
   --status-color: #6645a8;
 }
 
 .status-badge--resolved {
+  --status-border: #bddcc9;
   --status-background: #e8f7ef;
   --status-color: #24734c;
 }
