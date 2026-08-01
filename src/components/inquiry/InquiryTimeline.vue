@@ -9,10 +9,10 @@ defineProps<{
 }>()
 
 const historyLabels: Record<InquiryHistory['type'], string> = {
-  CREATED: '문의 접수',
+  CREATED: '케이스 접수',
   STATUS_CHANGED: '상태 변경',
   ASSIGNEE_CHANGED: '담당자 변경',
-  NOTE_ADDED: '운영 메모',
+  NOTE_ADDED: '지원팀 메모',
 }
 
 function getHistoryDescription(item: InquiryHistory): string {
@@ -34,7 +34,6 @@ function getHistoryDescription(item: InquiryHistory): string {
   <section class="timeline-card" aria-labelledby="inquiry-timeline-title">
     <div class="timeline-card__heading">
       <div>
-        <p>Activity</p>
         <h2 id="inquiry-timeline-title">처리 이력</h2>
       </div>
       <span>{{ history.length }}건</span>
@@ -60,7 +59,7 @@ function getHistoryDescription(item: InquiryHistory): string {
 .timeline-card {
   padding: clamp(var(--space-5), 4vw, var(--space-8));
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
@@ -71,14 +70,6 @@ function getHistoryDescription(item: InquiryHistory): string {
   gap: var(--space-4);
   align-items: center;
   margin-bottom: var(--space-6);
-}
-
-.timeline-card__heading p {
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .timeline-card h2 {

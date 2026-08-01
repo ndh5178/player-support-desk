@@ -148,9 +148,9 @@ interface InquiryTemplate {
 const inquiryTemplates: readonly InquiryTemplate[] = [
   {
     id: 'INQ-2026-0001',
-    title: '로그인 인증 이메일이 도착하지 않습니다',
+    title: 'KRAFTON ID 인증 메일이 도착하지 않습니다',
     content:
-      '새 기기에서 로그인하려고 했지만 인증 이메일을 여러 번 요청해도 수신되지 않습니다. 스팸함에도 메일이 없습니다.',
+      '새 PC에서 KRAFTON ID로 로그인하려고 했지만 인증 이메일을 여러 번 요청해도 수신되지 않습니다. 스팸함에도 메일이 없습니다.',
     category: 'ACCOUNT',
     priority: 'HIGH',
     status: 'NEW',
@@ -160,9 +160,9 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0002',
-    title: '같은 상품이 두 번 결제되었습니다',
+    title: 'G-Coin 상품이 두 번 결제되었습니다',
     content:
-      '결제 완료 화면이 늦게 표시되어 버튼을 다시 눌렀고 카드 명세에 동일한 금액이 두 번 승인되었습니다.',
+      'G-Coin 결제 완료 화면이 늦게 표시되어 버튼을 다시 눌렀고 카드 명세에 동일한 금액이 두 번 승인되었습니다.',
     category: 'PAYMENT',
     priority: 'URGENT',
     status: 'IN_PROGRESS',
@@ -174,9 +174,9 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0003',
-    title: '업데이트 후 검은 화면에서 멈춥니다',
+    title: '패치 후 로비 진입 시 검은 화면에서 멈춥니다',
     content:
-      '오늘 업데이트 이후 실행하면 소리만 들리고 화면은 검은색으로 유지됩니다. 파일 검사는 완료했습니다.',
+      '오늘 업데이트 이후 로비에 진입하면 소리만 들리고 화면은 검은색으로 유지됩니다. Steam 파일 무결성 검사는 완료했습니다.',
     category: 'GAME_ERROR',
     priority: 'HIGH',
     status: 'IN_PROGRESS',
@@ -188,9 +188,9 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0004',
-    title: '반복적으로 모욕적인 채팅을 보낸 사용자를 신고합니다',
+    title: '스쿼드 음성 채팅에서 욕설한 플레이어를 신고합니다',
     content:
-      '세 경기 연속 같은 사용자가 팀원에게 모욕적인 채팅을 보냈습니다. 경기 시각과 사용자 이름을 본문에 정리했습니다.',
+      '스쿼드 매치에서 같은 플레이어가 팀원에게 지속적으로 욕설했습니다. 경기 시각과 닉네임을 본문에 정리했습니다.',
     category: 'REPORT',
     priority: 'HIGH',
     status: 'NEW',
@@ -200,7 +200,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0005',
-    title: '패치 설치 중 디스크 공간 오류가 발생합니다',
+    title: 'Steam 패치 설치 중 디스크 공간 오류가 발생합니다',
     content:
       '설치 드라이브에 충분한 공간이 있지만 패치가 70%에서 중단되고 디스크 공간 부족 메시지가 표시됩니다.',
     category: 'INSTALLATION',
@@ -214,7 +214,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0006',
-    title: '프로필의 국가 정보를 변경하고 싶습니다',
+    title: 'KRAFTON ID의 거주 국가를 변경하고 싶습니다',
     content:
       '최근 거주 국가가 바뀌어 프로필의 국가와 기본 언어를 변경하고 싶습니다. 필요한 확인 절차를 알려주세요.',
     category: 'ACCOUNT',
@@ -228,9 +228,9 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0007',
-    title: '구매한 아이템이 보관함에 지급되지 않았습니다',
+    title: '구매한 무기 스킨이 보관함에 지급되지 않았습니다',
     content:
-      '상점에서 아이템을 구매했고 결제 영수증도 받았지만 게임 내 보관함에는 아이템이 표시되지 않습니다.',
+      '상점에서 무기 스킨을 구매했고 G-Coin 차감도 확인했지만 게임 내 보관함에는 아이템이 표시되지 않습니다.',
     category: 'PAYMENT',
     priority: 'HIGH',
     status: 'IN_PROGRESS',
@@ -242,7 +242,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0008',
-    title: '매치 시작 직후 연결이 반복적으로 종료됩니다',
+    title: '경기 시작 직후 매치 서버 연결이 종료됩니다',
     content:
       '로비에서는 문제가 없지만 매치가 시작되면 1분 안에 연결이 종료됩니다. 다른 온라인 서비스는 정상입니다.',
     category: 'GAME_ERROR',
@@ -256,7 +256,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0009',
-    title: '신고한 사용자에 대한 처리 결과가 궁금합니다',
+    title: '부정행위 신고 결과를 확인하고 싶습니다',
     content:
       '일주일 전에 비정상 플레이 사용자를 신고했습니다. 신고가 접수되었는지와 확인이 끝났는지 알고 싶습니다.',
     category: 'REPORT',
@@ -270,7 +270,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0010',
-    title: '런처 업데이트가 계속 처음부터 다시 시작됩니다',
+    title: 'Steam 업데이트가 계속 처음부터 다시 시작됩니다',
     content:
       '업데이트가 완료된 것처럼 보인 뒤 런처를 다시 열면 같은 파일을 처음부터 다시 내려받습니다.',
     category: 'INSTALLATION',
@@ -282,7 +282,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0011',
-    title: '비밀번호 재설정 링크가 만료되었다고 표시됩니다',
+    title: 'KRAFTON ID 비밀번호 재설정 링크가 만료됩니다',
     content:
       '메일을 받은 직후 링크를 열어도 만료된 링크라는 메시지가 표시됩니다. 다른 브라우저에서도 동일합니다.',
     category: 'ACCOUNT',
@@ -296,7 +296,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0012',
-    title: '환불 요청의 현재 상태를 확인하고 싶습니다',
+    title: 'G-Coin 환불 요청 상태를 확인하고 싶습니다',
     content:
       '웹사이트에서 환불을 신청한 지 사흘이 지났지만 진행 상태가 바뀌지 않아 확인을 요청합니다.',
     category: 'PAYMENT',
@@ -310,7 +310,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0013',
-    title: '그래픽 드라이버 충돌 메시지가 표시됩니다',
+    title: 'DirectX 오류와 함께 게임이 강제 종료됩니다',
     content:
       '최신 드라이버 설치 후 게임을 실행하면 충돌 보고서가 표시됩니다. 이전 버전에서는 정상 실행되었습니다.',
     category: 'GAME_ERROR',
@@ -324,7 +324,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0014',
-    title: '닉네임 규정을 위반한 사용자를 신고합니다',
+    title: '부적절한 배틀그라운드 닉네임을 신고합니다',
     content:
       '공개 채널에서 혐오 표현이 포함된 닉네임을 확인했습니다. 사용자 식별 정보와 확인 시각을 전달합니다.',
     category: 'REPORT',
@@ -338,7 +338,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0015',
-    title: '게임 설치 경로를 다른 드라이브로 옮기고 싶습니다',
+    title: 'Steam 설치 경로를 다른 드라이브로 옮기고 싶습니다',
     content:
       '전체 파일을 다시 내려받지 않고 설치 폴더를 다른 드라이브로 이동할 수 있는 방법이 있는지 문의합니다.',
     category: 'INSTALLATION',
@@ -352,7 +352,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0016',
-    title: '사용하지 않는 외부 계정 연동을 해제해 주세요',
+    title: 'KRAFTON ID와 Steam 계정 연동을 해제하고 싶습니다',
     content:
       '더 이상 접근할 수 없는 외부 계정이 연결되어 있습니다. 본인 확인 후 연동을 해제하고 싶습니다.',
     category: 'ACCOUNT',
@@ -366,7 +366,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0017',
-    title: '새 결제 수단을 등록할 수 없습니다',
+    title: 'G-Coin 결제 수단을 등록할 수 없습니다',
     content:
       '카드 정보를 올바르게 입력해도 결제 수단을 확인할 수 없다는 메시지가 표시됩니다.',
     category: 'PAYMENT',
@@ -378,7 +378,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0018',
-    title: '팀 음성 채팅이 몇 초마다 끊깁니다',
+    title: '스쿼드 음성 채팅이 몇 초마다 끊깁니다',
     content:
       '게임 소리는 정상이지만 팀 음성만 주기적으로 끊깁니다. 입력 장치를 바꿔도 문제가 계속됩니다.',
     category: 'GAME_ERROR',
@@ -392,7 +392,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0019',
-    title: '고의로 팀원을 공격한 사용자를 신고합니다',
+    title: '고의적인 팀킬 플레이어를 신고합니다',
     content:
       '경기 시작부터 같은 팀원을 반복적으로 공격하고 진행을 방해한 사용자의 확인을 요청합니다.',
     category: 'REPORT',
@@ -406,7 +406,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0020',
-    title: '노트북에서 실행 가능한 최소 사양이 궁금합니다',
+    title: '노트북에서 배틀그라운드를 실행할 수 있는지 궁금합니다',
     content: '공식 사양표에 없는 내장 그래픽 환경에서 실행 가능한지 확인하고 싶습니다.',
     category: 'INSTALLATION',
     priority: 'LOW',
@@ -419,7 +419,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0021',
-    title: '보호자 승인 계정의 이메일을 변경하고 싶습니다',
+    title: '보호자 승인 KRAFTON ID의 이메일을 변경하고 싶습니다',
     content:
       '보호자 이메일을 더 이상 사용할 수 없어 새 이메일로 변경하려고 합니다. 필요한 서류가 궁금합니다.',
     category: 'ACCOUNT',
@@ -431,7 +431,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0022',
-    title: '상점 가격이 지역 통화와 다르게 표시됩니다',
+    title: 'G-Coin 가격이 지역 통화와 다르게 표시됩니다',
     content:
       '프로필 국가와 접속 지역은 동일하지만 상점의 일부 상품만 다른 통화로 표시됩니다.',
     category: 'PAYMENT',
@@ -445,8 +445,8 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0023',
-    title: '오류 코드 PS-104 이후 로비로 돌아갑니다',
-    content: '특정 모드의 매칭이 완료된 직후 PS-104 오류가 표시되고 로비로 돌아갑니다.',
+    title: '매치메이킹 완료 직후 다시 로비로 돌아갑니다',
+    content: '경쟁전 매칭이 완료된 직후 연결 오류가 표시되고 로비로 돌아갑니다.',
     category: 'GAME_ERROR',
     priority: 'NORMAL',
     status: 'RESOLVED',
@@ -458,7 +458,7 @@ const inquiryTemplates: readonly InquiryTemplate[] = [
   },
   {
     id: 'INQ-2026-0024',
-    title: '이벤트 참여 보상이 지급되지 않았습니다',
+    title: '생존자 패스 미션 보상이 지급되지 않았습니다',
     content:
       '이벤트 조건을 충족했고 완료 알림도 확인했지만 계정에 보상이 지급되지 않았습니다.',
     category: 'OTHER',

@@ -16,8 +16,7 @@ function getPercentage(count: number, total: number): number {
   <section class="distribution" aria-labelledby="priority-distribution-title">
     <div class="distribution__heading">
       <div>
-        <p>Workload</p>
-        <h2 id="priority-distribution-title">우선순위 분포</h2>
+        <h2 id="priority-distribution-title">문의 우선순위 분포</h2>
       </div>
       <span>총 {{ total.toLocaleString('ko-KR') }}건</span>
     </div>
@@ -53,8 +52,9 @@ function getPercentage(count: number, total: number): number {
   min-width: 0;
   padding: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 92%);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgb(214 165 47 / 7%), transparent 38%), rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
 
@@ -63,15 +63,6 @@ function getPercentage(count: number, total: number): number {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-}
-
-.distribution__heading p {
-  margin-bottom: var(--space-1);
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .distribution__heading h2 {

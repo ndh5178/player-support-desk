@@ -20,8 +20,7 @@ defineEmits<{
   <section class="notes-card" aria-labelledby="inquiry-notes-title">
     <div class="notes-card__heading">
       <div>
-        <p>Internal notes</p>
-        <h2 id="inquiry-notes-title">운영 메모</h2>
+        <h2 id="inquiry-notes-title">내부 메모</h2>
       </div>
       <span>{{ notes.length }}개</span>
     </div>
@@ -79,7 +78,7 @@ defineEmits<{
 .notes-card {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
@@ -91,14 +90,6 @@ defineEmits<{
   align-items: center;
   padding: var(--space-5) clamp(var(--space-5), 4vw, var(--space-6));
   border-bottom: 1px solid var(--color-border);
-}
-
-.notes-card__heading p {
-  color: var(--color-brand-700);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .notes-card h2 {

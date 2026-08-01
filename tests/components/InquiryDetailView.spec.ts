@@ -69,8 +69,8 @@ describe('InquiryDetailView', () => {
 
     await waitForDetail()
 
-    expect(wrapper.get('h1').text()).toContain('로그인 인증 이메일이 도착하지 않습니다')
-    expect(wrapper.get('#inquiry-content-title').text()).toBe('문의 내용')
+    expect(wrapper.get('h1').text()).toContain('KRAFTON ID 인증 메일이 도착하지 않습니다')
+    expect(wrapper.get('#inquiry-content-title').text()).toBe('플레이어 메시지')
     expect(wrapper.get('#customer-card-title').text()).toBe('CloudRider')
     expect(wrapper.get('#inquiry-timeline-title').text()).toBe('처리 이력')
     expect(wrapper.get('[name="inquiry-assignee"]').findAll('option')).toHaveLength(5)
@@ -89,7 +89,7 @@ describe('InquiryDetailView', () => {
     expect(store.currentInquiry?.status).toBe('IN_PROGRESS')
     expect(store.currentInquiry?.assignee?.id).toBe('agent-002')
     expect(wrapper.get('[role="status"]').text()).toContain(
-      '문의 상태와 담당자 변경 사항을 저장했습니다.',
+      '케이스 상태와 담당자 변경 사항을 저장했습니다.',
     )
     expect(wrapper.get('.timeline').text()).toContain(
       '문의 상태를 신규에서 처리 중(으)로 변경했습니다.',
@@ -126,7 +126,7 @@ describe('InquiryDetailView', () => {
     expect((wrapper.get('#inquiry-note').element as HTMLTextAreaElement).value).toBe('')
     expect(wrapper.get('.notes-list').text()).toContain('결제 내역 확인을 요청했습니다.')
     expect(wrapper.get('[role="status"]').text()).toContain(
-      '운영 메모를 추가하고 처리 이력을 갱신했습니다.',
+      '지원팀 메모를 추가하고 활동 기록을 갱신했습니다.',
     )
   })
 
@@ -171,7 +171,9 @@ describe('InquiryDetailView', () => {
 
     await waitForDetail()
 
-    expect(wrapper.get('#inquiry-not-found-title').text()).toBe('문의를 찾을 수 없습니다')
+    expect(wrapper.get('#inquiry-not-found-title').text()).toBe(
+      '케이스를 찾을 수 없습니다',
+    )
 
     await wrapper.get('.not-found-state__actions a').trigger('click')
     await flushPromises()
@@ -208,6 +210,6 @@ describe('InquiryDetailView', () => {
     await waitForDetail()
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    expect(wrapper.get('h1').text()).toContain('로그인 인증 이메일이 도착하지 않습니다')
+    expect(wrapper.get('h1').text()).toContain('KRAFTON ID 인증 메일이 도착하지 않습니다')
   })
 })

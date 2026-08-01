@@ -37,7 +37,7 @@ function getInputValue(event: Event): string {
   <section class="filter-bar" aria-labelledby="inquiry-filter-title">
     <div class="filter-bar__mobile-heading">
       <div>
-        <strong>검색 및 필터</strong>
+        <strong>케이스 검색 및 필터</strong>
         <span v-if="activeFilterCount > 0"> {{ activeFilterCount }}개 적용 중 </span>
       </div>
       <button
@@ -53,10 +53,10 @@ function getInputValue(event: Event): string {
       </button>
     </div>
 
-    <h2 id="inquiry-filter-title" class="filter-bar__title">문의 검색 및 필터</h2>
+    <h2 id="inquiry-filter-title" class="filter-bar__title">케이스 검색 및 필터</h2>
 
     <div class="filter-bar__search">
-      <label for="inquiry-search">문의 검색</label>
+      <label for="inquiry-search">케이스 검색</label>
       <span aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7" />
@@ -67,7 +67,7 @@ function getInputValue(event: Event): string {
         id="inquiry-search"
         type="search"
         :value="search"
-        placeholder="문의 번호, 제목, 고객 닉네임"
+        placeholder="케이스 ID, 제목, 플레이어 닉네임"
         autocomplete="off"
         @input="emit('update:search', getInputValue($event))"
       />
@@ -173,8 +173,9 @@ function getInputValue(event: Event): string {
   gap: var(--space-4);
   padding: var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 92%);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(90deg, rgb(214 165 47 / 7%), transparent 28%), rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
 

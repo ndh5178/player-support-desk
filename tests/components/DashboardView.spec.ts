@@ -46,7 +46,7 @@ describe('DashboardView', () => {
     expect(summary.text()).toContain('SLA 지연')
     expect(wrapper.get('#recent-inquiries-title').text()).toBe('최근 접수 문의')
     expect(wrapper.text()).toContain('INQ-2026-0001')
-    expect(wrapper.get('#priority-distribution-title').text()).toBe('우선순위 분포')
+    expect(wrapper.get('#priority-distribution-title').text()).toBe('문의 우선순위 분포')
     expect(wrapper.findAll('[role="progressbar"]')).toHaveLength(4)
   })
 

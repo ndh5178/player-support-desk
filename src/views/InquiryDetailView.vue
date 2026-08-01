@@ -4,6 +4,8 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import ErrorState from '../components/common/ErrorState.vue'
+import PriorityBadge from '../components/common/PriorityBadge.vue'
+import StatusBadge from '../components/common/StatusBadge.vue'
 import InquiryDetailSkeleton from '../components/inquiry/InquiryDetailSkeleton.vue'
 import InquiryManagementPanel from '../components/inquiry/InquiryManagementPanel.vue'
 import InquiryNotes from '../components/inquiry/InquiryNotes.vue'
@@ -42,6 +44,25 @@ const inquiryId = computed(() => {
 
 const isNotFound = computed(() => detailErrorStatus.value === 404)
 
+const slaSignal = computed(() => {
+  if (!currentInquiry.value) {
+    return { label: '', overdue: false }
+  }
+
+  const difference = new Date(currentInquiry.value.slaDueAt).getTime() - Date.now()
+  const totalMinutes = Math.max(1, Math.round(Math.abs(difference) / 60_000))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  const duration = [hours > 0 ? `${hours}시간` : '', minutes > 0 ? `${minutes}분` : '']
+    .filter(Boolean)
+    .join(' ')
+
+  return {
+    label: difference < 0 ? `SLA ${duration} 초과` : `SLA ${duration} 남음`,
+    overdue: difference < 0,
+  }
+})
+
 function resetLocalState(): void {
   noteInput.value = ''
   noteErrorMessage.value = ''
@@ -68,11 +89,11 @@ async function saveInquiryChanges(payload: UpdateInquiryRequest): Promise<void> 
   feedback.value = saved
     ? {
         type: 'success',
-        message: '문의 상태와 담당자 변경 사항을 저장했습니다.',
+        message: '케이스 상태와 담당자 변경 사항을 저장했습니다.',
       }
     : {
         type: 'error',
-        message: mutationErrorMessage.value || '문의 변경 사항을 저장하지 못했습니다.',
+        message: mutationErrorMessage.value || '케이스 변경 사항을 저장하지 못했습니다.',
       }
 }
 
@@ -107,14 +128,14 @@ async function submitNote(): Promise<void> {
     noteInput.value = ''
     feedback.value = {
       type: 'success',
-      message: '운영 메모를 추가하고 처리 이력을 갱신했습니다.',
+      message: '지원팀 메모를 추가하고 활동 기록을 갱신했습니다.',
     }
     return
   }
 
   feedback.value = {
     type: 'error',
-    message: mutationErrorMessage.value || '운영 메모를 저장하지 못했습니다.',
+    message: mutationErrorMessage.value || '지원팀 메모를 저장하지 못했습니다.',
   }
 }
 
@@ -132,11 +153,10 @@ onUnmounted(() => {
     <template v-else-if="isNotFound">
       <section class="not-found-state" aria-labelledby="inquiry-not-found-title">
         <span class="not-found-state__code">404</span>
-        <p class="page-header__eyebrow">Inquiry not found</p>
-        <h1 id="inquiry-not-found-title">문의를 찾을 수 없습니다</h1>
+        <h1 id="inquiry-not-found-title">케이스를 찾을 수 없습니다</h1>
         <p>
-          문의 번호 <strong>{{ inquiryId }}</strong
-          >가 삭제됐거나 올바르지 않습니다. 목록에서 다른 문의를 선택해 주세요.
+          케이스 ID <strong>{{ inquiryId }}</strong
+          >가 삭제됐거나 올바르지 않습니다. 목록에서 다른 케이스를 선택해 주세요.
         </p>
         <div class="not-found-state__actions">
           <RouterLink :to="{ name: 'inquiry-list' }">문의 목록으로</RouterLink>
@@ -147,8 +167,7 @@ onUnmounted(() => {
 
     <template v-else-if="detailErrorMessage">
       <header class="page-header">
-        <p class="page-header__eyebrow">Inquiry detail</p>
-        <h1>문의 상세</h1>
+        <h1>케이스 상세</h1>
         <p class="page-header__description">
           문의 상세 정보를 불러오는 중 문제가 발생했습니다.
         </p>
@@ -164,12 +183,19 @@ onUnmounted(() => {
       <header class="detail-header">
         <RouterLink class="detail-header__back" :to="{ name: 'inquiry-list' }">
           <span aria-hidden="true">←</span>
-          문의 목록
+          플레이어 문의 큐
         </RouterLink>
         <div class="detail-header__title">
           <div>
-            <p class="page-header__eyebrow">Inquiry detail · {{ currentInquiry.id }}</p>
+            <p class="page-header__eyebrow">{{ currentInquiry.id }}</p>
             <h1>{{ currentInquiry.title }}</h1>
+            <div class="detail-header__intel" aria-label="케이스 핵심 상태">
+              <PriorityBadge :priority="currentInquiry.priority" />
+              <StatusBadge :status="currentInquiry.status" />
+              <span :class="{ 'detail-header__sla--overdue': slaSignal.overdue }">
+                {{ slaSignal.label }}
+              </span>
+            </div>
           </div>
           <p>
             {{ currentInquiry.customer.nickname }} 님이
@@ -212,7 +238,6 @@ onUnmounted(() => {
                 {{ currentInquiry.customer.nickname.slice(0, 1).toUpperCase() }}
               </div>
               <div>
-                <p>Customer</p>
                 <h2 id="customer-card-title">{{ currentInquiry.customer.nickname }}</h2>
               </div>
             </div>
@@ -276,6 +301,29 @@ onUnmounted(() => {
 .detail-header {
   display: grid;
   gap: var(--space-5);
+}
+
+.detail-header__intel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.detail-header__intel > span:last-child {
+  padding: 0.3125rem 0.625rem;
+  border: 1px solid #d4bd7c;
+  background: #fff6d9;
+  color: #76530d;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.detail-header__intel > .detail-header__sla--overdue {
+  border-color: #d9aaa5;
+  background: #fae9e6;
+  color: #913630;
 }
 
 .detail-header__back {
@@ -421,7 +469,7 @@ onUnmounted(() => {
 .customer-card {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
@@ -432,6 +480,8 @@ onUnmounted(() => {
   align-items: center;
   padding: var(--space-5);
   border-bottom: 1px solid var(--color-border);
+  background:
+    linear-gradient(90deg, rgb(214 165 47 / 10%), transparent 45%), var(--color-surface);
 }
 
 .customer-card__avatar {
@@ -519,7 +569,7 @@ onUnmounted(() => {
   font-size: clamp(1.5rem, 5vw, 2.25rem);
 }
 
-.not-found-state > p:not(.page-header__eyebrow) {
+.not-found-state > p {
   max-width: 35rem;
   color: var(--color-text-muted);
 }

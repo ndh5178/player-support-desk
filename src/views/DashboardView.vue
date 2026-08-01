@@ -24,25 +24,25 @@ const summaryCards = computed(() => {
     {
       label: '전체 문의',
       value: dashboard.value.totalCount,
-      description: '현재 저장된 모든 고객 문의',
+      description: '현재 지원 큐에 등록된 전체 케이스',
       tone: 'neutral' as const,
     },
     {
       label: '신규 문의',
       value: dashboard.value.newCount,
-      description: '아직 처리를 시작하지 않은 문의',
+      description: '아직 담당자가 확인하지 않은 케이스',
       tone: 'info' as const,
     },
     {
       label: '처리 중',
       value: dashboard.value.inProgressCount,
-      description: '담당자가 확인하고 있는 문의',
+      description: '지원 요원이 대응하고 있는 케이스',
       tone: 'progress' as const,
     },
     {
       label: 'SLA 지연',
       value: dashboard.value.slaOverdueCount,
-      description: '응답 목표 시각을 지난 미해결 문의',
+      description: '응답 목표 시각을 초과한 케이스',
       tone: 'danger' as const,
     },
   ]
@@ -87,14 +87,18 @@ onUnmounted(() => {
   <div class="page dashboard-page" :aria-busy="isLoading">
     <header class="page-header dashboard-header">
       <div>
-        <p class="page-header__eyebrow">Operations overview</p>
-        <h1>운영 현황</h1>
+        <div class="dashboard-header__signal" aria-label="현재 운영 환경">
+          <span><i aria-hidden="true"></i> 지원 시스템 정상</span>
+          <span>지역 · 한국</span>
+          <span>플랫폼 · PC</span>
+        </div>
+        <h1>전황 대시보드</h1>
         <p class="page-header__description">
-          신규 문의와 처리 중인 문의, SLA 지연 현황을 한눈에 확인합니다.
+          배틀그라운드 플레이어 문의와 지원 큐의 대응 현황을 확인합니다.
         </p>
       </div>
       <RouterLink class="dashboard-header__action" to="/inquiries">
-        문의 관리
+        플레이어 문의 열기
         <span aria-hidden="true">→</span>
       </RouterLink>
     </header>
@@ -140,6 +144,35 @@ onUnmounted(() => {
   gap: var(--space-5);
 }
 
+.dashboard-header__signal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.dashboard-header__signal span {
+  display: inline-flex;
+  min-height: 1.625rem;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  background: rgb(255 255 255 / 52%);
+  color: var(--color-text-muted);
+  font-size: 0.625rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.dashboard-header__signal i {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #32865a;
+  box-shadow: 0 0 0 0.1875rem rgb(50 134 90 / 14%);
+}
+
 .dashboard-header__action {
   display: inline-flex;
   flex: 0 0 auto;
@@ -148,17 +181,19 @@ onUnmounted(() => {
   gap: var(--space-2);
   min-height: 2.75rem;
   padding: 0.625rem var(--space-4);
-  border: 1px solid var(--color-brand-600);
+  border: 1px solid var(--color-tactical-900);
   border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-brand-700);
+  background: var(--color-tactical-900);
+  color: #fff8e6;
   font-size: var(--font-size-sm);
   font-weight: 700;
   text-decoration: none;
 }
 
 .dashboard-header__action:hover {
-  background: var(--color-brand-50);
+  border-color: var(--color-brand-600);
+  background: var(--color-tactical-700);
+  color: #f4c64f;
 }
 
 .summary-grid {

@@ -15,7 +15,7 @@ defineProps<{
     <div class="overview-card__heading">
       <div>
         <p class="section-eyebrow">{{ getCategoryLabel(inquiry.category) }}</p>
-        <h2 id="inquiry-content-title">문의 내용</h2>
+        <h2 id="inquiry-content-title">플레이어 메시지</h2>
       </div>
       <div class="overview-card__badges" aria-label="문의 분류">
         <PriorityBadge :priority="inquiry.priority" />
@@ -27,7 +27,7 @@ defineProps<{
 
     <dl class="overview-card__meta">
       <div>
-        <dt>문의 번호</dt>
+        <dt>케이스 ID</dt>
         <dd>{{ inquiry.id }}</dd>
       </div>
       <div>
@@ -62,8 +62,9 @@ defineProps<{
   gap: var(--space-6);
   padding: clamp(var(--space-5), 4vw, var(--space-8));
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 92%);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgb(214 165 47 / 7%), transparent 34%), rgb(255 255 255 / 92%);
   box-shadow: var(--shadow-sm);
 }
 

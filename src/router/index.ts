@@ -37,7 +37,7 @@ const router = createRouter({
       name: 'dashboard',
       component: DashboardView,
       meta: {
-        title: '대시보드',
+        title: '전황 대시보드',
       },
     },
     {
@@ -45,7 +45,7 @@ const router = createRouter({
       name: 'inquiry-list',
       component: InquiryListView,
       meta: {
-        title: '문의 관리',
+        title: '플레이어 문의 큐',
       },
     },
     {
@@ -53,7 +53,7 @@ const router = createRouter({
       name: 'inquiry-detail',
       component: () => import('@/views/InquiryDetailView.vue'),
       meta: {
-        title: '문의 상세',
+        title: '케이스 상세',
       },
     },
     {
@@ -70,7 +70,9 @@ const router = createRouter({
 
 router.afterEach(async (to, from) => {
   const title = typeof to.meta.title === 'string' ? to.meta.title : ''
-  document.title = title ? `${title} | 플레이어 지원 데스크` : '플레이어 지원 데스크'
+  document.title = title
+    ? `${title} | BATTLEGROUNDS Player Support Ops`
+    : 'BATTLEGROUNDS Player Support Ops'
 
   if (from === START_LOCATION || to.path === from.path) {
     return

@@ -32,9 +32,9 @@ const label = computed(() => getPriorityLabel(props.priority))
 }
 
 .priority-badge__marker {
-  width: 0.25rem;
-  height: 0.75rem;
-  border-radius: 999px;
+  width: 0.1875rem;
+  height: 0.875rem;
+  border-radius: 0;
   background: currentcolor;
 }
 
