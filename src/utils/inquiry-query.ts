@@ -29,6 +29,7 @@ export interface NormalizedInquiryListQuery {
 function getSingleQueryValue(
   value: string | null | (string | null)[] | undefined,
 ): string | undefined {
+  // 같은 Query가 여러 번 들어오면 Vue Router는 배열을 주므로 첫 값만 사용한다.
   const singleValue = Array.isArray(value) ? value[0] : value
 
   return singleValue ?? undefined
@@ -45,6 +46,7 @@ function parsePositiveInteger(value: string | undefined, fallback: number): numb
 }
 
 export function parseInquiryListQuery(query: LocationQuery): NormalizedInquiryListQuery {
+  // 주소창의 문자열을 검증해 화면과 API가 사용할 안전한 필터 값으로 바꾼다.
   const search = getSingleQueryValue(query.search)?.trim() ?? ''
   const status = getSingleQueryValue(query.status)
   const priority = getSingleQueryValue(query.priority)
@@ -66,6 +68,7 @@ export function parseInquiryListQuery(query: LocationQuery): NormalizedInquiryLi
 export function toApiInquiryListQuery(
   query: NormalizedInquiryListQuery,
 ): InquiryListQuery {
+  // 빈 필터는 보내지 않아 API 요청 URL을 짧고 명확하게 유지한다.
   return {
     ...(query.search ? { search: query.search } : {}),
     ...(query.status ? { status: query.status } : {}),
@@ -80,6 +83,7 @@ export function toApiInquiryListQuery(
 export function toRouteInquiryListQuery(
   query: NormalizedInquiryListQuery,
 ): LocationQueryRaw {
+  // 기본값은 URL에서 생략해 같은 목록 상태가 하나의 간결한 주소로 표현되게 한다.
   return {
     ...(query.search ? { search: query.search } : {}),
     ...(query.status ? { status: query.status } : {}),

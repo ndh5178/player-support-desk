@@ -8,6 +8,7 @@ import { formatDateTime } from '../../utils/date'
 import { getCategoryLabel } from '../../utils/inquiry'
 
 defineProps<{
+  // 작은 화면에서는 표 대신 같은 문의 배열을 터치하기 쉬운 카드로 표시한다.
   inquiries: Inquiry[]
 }>()
 </script>

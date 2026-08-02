@@ -5,6 +5,7 @@ export const INQUIRY_STATUSES = [
   'RESOLVED',
 ] as const
 
+// 위 상수 배열을 타입의 기준으로 함께 사용해 실행 시 값과 TypeScript 타입의 중복을 줄인다.
 export type InquiryStatus = (typeof INQUIRY_STATUSES)[number]
 
 export const INQUIRY_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW'] as const
@@ -63,6 +64,7 @@ export interface InquiryNote {
 }
 
 export interface Inquiry {
+  // 문의 상세 화면과 목록, 대시보드가 공유하는 핵심 도메인 객체다.
   id: string
   title: string
   content: string
@@ -79,6 +81,7 @@ export interface Inquiry {
 }
 
 export interface InquiryListQuery {
+  // 모두 선택 사항이므로 화면은 필요한 검색·필터 조건만 API에 전달할 수 있다.
   search?: string
   status?: InquiryStatus
   priority?: InquiryPriority
@@ -98,6 +101,7 @@ export interface CreateInquiryNoteRequest {
 }
 
 export function isInquiryStatus(value: string): value is InquiryStatus {
+  // URL과 JSON에서 들어온 문자열은 타입 정보가 없으므로 실행 중에도 유효성을 확인한다.
   return INQUIRY_STATUSES.some((status) => status === value)
 }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 대시보드가 전달한 통계 한 건을 표시만 하는 프레젠테이션 컴포넌트다.
 defineProps<{
   label: string
   value: number

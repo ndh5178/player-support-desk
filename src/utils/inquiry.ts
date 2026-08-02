@@ -1,5 +1,6 @@
 import type { InquiryCategory, InquiryPriority, InquiryStatus } from '../types/inquiry'
 
+// satisfies는 모든 도메인 코드에 대응하는 한글 문구가 있는지 컴파일 시 확인한다.
 const statusLabels = {
   NEW: '신규',
   IN_PROGRESS: '처리 중',

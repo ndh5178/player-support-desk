@@ -6,6 +6,7 @@ import { formatDateTime } from '../../utils/date'
 import { getCategoryLabel } from '../../utils/inquiry'
 
 defineProps<{
+  // 상세 화면이 조회한 문의 원본을 받아 본문과 접수 정보만 표시한다.
   inquiry: Inquiry
 }>()
 </script>

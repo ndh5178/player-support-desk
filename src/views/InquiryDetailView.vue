@@ -22,6 +22,7 @@ interface Feedback {
 
 const route = useRoute()
 const inquiryStore = useInquiryStore()
+// Store의 확정된 서버 상태와 아래의 입력 초안을 분리해 저장 실패 시 원본을 지킨다.
 const {
   currentInquiry,
   agents,
@@ -37,6 +38,7 @@ const noteInput = ref('')
 const noteErrorMessage = ref('')
 const feedback = ref<Feedback | null>(null)
 
+// 동적 라우트 값은 배열일 수도 있으므로 상세 조회에 사용할 하나의 문자열로 정규화한다.
 const inquiryId = computed(() => {
   const id = route.params.id
   return Array.isArray(id) ? (id[0] ?? '') : (id ?? '')
@@ -44,6 +46,7 @@ const inquiryId = computed(() => {
 
 const isNotFound = computed(() => detailErrorStatus.value === 404)
 
+// SLA 기한과 현재 시각의 차이를 화면에 표시할 문구와 경고 상태로 계산한다.
 const slaSignal = computed(() => {
   if (!currentInquiry.value) {
     return { label: '', overdue: false }
@@ -70,6 +73,7 @@ function resetLocalState(): void {
 }
 
 async function loadInquiry(): Promise<void> {
+  // 다른 문의로 이동하면 이전 문의에 입력하던 메모와 알림을 먼저 비운다.
   resetLocalState()
 
   if (!inquiryId.value) {
@@ -86,6 +90,7 @@ async function saveInquiryChanges(payload: UpdateInquiryRequest): Promise<void> 
 
   const saved = await inquiryStore.saveInquiryChanges(payload)
 
+  // Store가 반환한 성공 여부를 사용자가 확인할 수 있는 화면 알림으로 바꾼다.
   feedback.value = saved
     ? {
         type: 'success',
@@ -108,6 +113,7 @@ function updateNoteInput(value: string): void {
 async function submitNote(): Promise<void> {
   const content = noteInput.value.trim()
 
+  // API에도 같은 검증이 있지만 화면에서 먼저 안내해 불필요한 요청을 막는다.
   if (!content) {
     noteErrorMessage.value = '공백이 아닌 메모 내용을 입력해 주세요.'
     return
@@ -139,9 +145,11 @@ async function submitNote(): Promise<void> {
   }
 }
 
+// 첫 진입과 같은 컴포넌트 안에서 ID만 바뀌는 이동을 모두 처리한다.
 watch(inquiryId, loadInquiry, { immediate: true })
 
 onUnmounted(() => {
+  // 상세 화면을 떠나면 진행 중인 요청과 공유 상세 상태를 함께 정리한다.
   inquiryStore.resetInquiryDetail()
 })
 </script>

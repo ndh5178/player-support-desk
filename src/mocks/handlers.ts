@@ -85,6 +85,7 @@ function parsePositiveInteger(value: string | null, fallback: number): number | 
 function parseListQuery(
   url: URL,
 ): { query: ParsedListQuery } | { response: ReturnType<typeof errorResponse> } {
+  // 실제 백엔드처럼 Query Parameter를 검증하고 잘못된 필드는 400 응답 정보로 모은다.
   const search = url.searchParams.get('search')?.trim() ?? ''
   const status = url.searchParams.get('status')
   const priority = url.searchParams.get('priority')
@@ -147,6 +148,7 @@ function findInquiry(id: string): {
   inquiry: Inquiry | undefined
   index: number
 } {
+  // 수정 후 전체 배열을 다시 저장할 수 있도록 문의와 배열 위치를 함께 반환한다.
   const inquiries = getStoredInquiries()
   const index = inquiries.findIndex((inquiry) => inquiry.id === id)
 
@@ -175,6 +177,7 @@ function createHistory(
 }
 
 export const handlers: RequestHandler[] = [
+  // 대시보드 통계는 저장된 문의 원본에서 요청 시점마다 다시 집계한다.
   http.get(`${API_ROOT}/dashboard`, async () => {
     await waitForMockDelay()
 
@@ -219,6 +222,7 @@ export const handlers: RequestHandler[] = [
     }
 
     const { search, status, priority, category, sort, page, limit } = parsedQuery.query
+    // 검색 → 필터 → 정렬 → 페이지 자르기 순서로 실제 목록 API 동작을 재현한다.
     const normalizedSearch = search.toLocaleLowerCase('ko-KR')
     const filteredInquiries = getStoredInquiries()
       .filter((inquiry) => {
@@ -291,6 +295,7 @@ export const handlers: RequestHandler[] = [
       return errorResponse(400, 'VALIDATION_ERROR', '수정할 문의 정보를 확인해 주세요.')
     }
 
+    // TypeScript 타입은 네트워크 JSON을 보장하지 못하므로 허용한 필드를 실행 중 검증한다.
     const body = rawBody as Record<string, unknown>
     const hasStatus = Object.hasOwn(body, 'status')
     const hasAssigneeId = Object.hasOwn(body, 'assigneeId')
@@ -326,6 +331,7 @@ export const handlers: RequestHandler[] = [
       )
     }
 
+    // 검증이 모두 끝난 뒤 복사본을 변경해 실패한 요청이 저장 원본에 영향을 주지 않게 한다.
     const nextInquiry = cloneSerializable(inquiry)
     const histories: InquiryHistory[] = []
 
@@ -389,6 +395,7 @@ export const handlers: RequestHandler[] = [
       return errorResponse(400, 'INVALID_JSON', '올바른 JSON 요청 본문이 필요합니다.')
     }
 
+    // 공백을 제거한 1~1,000자의 문자열만 내부 메모로 저장한다.
     const contentValue =
       rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
         ? (rawBody as Record<string, unknown>).content

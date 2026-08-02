@@ -9,6 +9,7 @@ import type {
 } from '../../types/inquiry'
 
 defineProps<{
+  // 필터의 확정 값은 부모와 URL이 관리하므로 이 컴포넌트는 Props로 받아 표시한다.
   search: string
   status?: InquiryStatus
   priority?: InquiryPriority
@@ -18,6 +19,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
+  // 사용자의 입력을 직접 저장하지 않고 어떤 값이 바뀌었는지 부모에게 알린다.
   'update:search': [value: string]
   'update:status': [value: InquiryStatus | undefined]
   'update:priority': [value: InquiryPriority | undefined]
@@ -26,9 +28,11 @@ const emit = defineEmits<{
   reset: []
 }>()
 
+// 모바일 필터 패널의 열림 여부는 이 컴포넌트에서만 필요하므로 로컬 ref로 둔다.
 const isExpanded = ref(false)
 
 function getInputValue(event: Event): string {
+  // DOM Event의 target 타입을 입력 요소로 좁혀 현재 문자열 값을 읽는다.
   return (event.target as HTMLInputElement | HTMLSelectElement).value
 }
 </script>

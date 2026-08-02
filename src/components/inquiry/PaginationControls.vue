@@ -12,6 +12,7 @@ const emit = defineEmits<{
 }>()
 
 const visiblePages = computed(() => {
+  // 현재 페이지 주변을 중심으로 최대 5개의 페이지 버튼만 만든다.
   const pageCount = props.pagination.totalPages
   const currentPage = props.pagination.page
   const startPage = Math.max(1, Math.min(currentPage - 2, pageCount - 4))
@@ -24,6 +25,7 @@ const visiblePages = computed(() => {
 })
 
 const itemRange = computed(() => {
+  // 전체 결과 중 현재 페이지가 보여 주는 시작·끝 번호를 계산한다.
   if (props.pagination.total === 0) {
     return '0건'
   }

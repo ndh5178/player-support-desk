@@ -16,6 +16,7 @@ const historyLabels: Record<InquiryHistory['type'], string> = {
 }
 
 function getHistoryDescription(item: InquiryHistory): string {
+  // 저장된 상태 코드는 사용자에게 보여 줄 때 한글 문구로 변환한다.
   if (
     item.type === 'STATUS_CHANGED' &&
     item.previousValue &&
@@ -40,6 +41,7 @@ function getHistoryDescription(item: InquiryHistory): string {
     </div>
 
     <ol class="timeline">
+      <!-- 원본 배열을 바꾸지 않고 복사본만 뒤집어 최신 활동부터 표시한다. -->
       <li v-for="item in [...history].reverse()" :key="item.id">
         <span class="timeline__marker" :data-type="item.type" aria-hidden="true"></span>
         <article>

@@ -28,10 +28,12 @@ const SEARCH_DEBOUNCE_MS = 350
 const route = useRoute()
 const router = useRouter()
 const inquiryStore = useInquiryStore()
+// storeToRefs를 사용하면 Store의 상태를 구조 분해해도 Vue 반응성이 유지된다.
 const { inquiries, pagination, isListLoading, listErrorMessage } =
   storeToRefs(inquiryStore)
 
 const normalizedQuery = computed(() => parseInquiryListQuery(route.query))
+// 검색창 입력은 즉시 보이게 두고, 실제 URL과 API 요청은 Debounce 이후 변경한다.
 const searchInput = ref(normalizedQuery.value.search)
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -70,6 +72,7 @@ function replaceQuery(
   patch: Partial<NormalizedInquiryListQuery>,
   options: { resetPage?: boolean } = {},
 ): void {
+  // URL Query를 필터 상태의 단일 기준으로 사용하며 필터 변경 시 기본적으로 1페이지로 돌아간다.
   const nextQuery: NormalizedInquiryListQuery = {
     ...normalizedQuery.value,
     ...patch,
@@ -126,6 +129,7 @@ async function fetchCurrentList(): Promise<void> {
     pagination.value.totalPages > 0 &&
     query.page > pagination.value.totalPages
   ) {
+    // 삭제나 필터 변경으로 현재 페이지가 범위를 벗어나면 마지막 유효 페이지로 보정한다.
     replaceQuery({ page: pagination.value.totalPages }, { resetPage: false })
   }
 }
@@ -133,6 +137,7 @@ async function fetchCurrentList(): Promise<void> {
 watch(
   () => route.query,
   () => {
+    // 새로고침과 브라우저 앞·뒤 이동도 같은 필터와 목록을 복원하도록 URL 변화를 관찰한다.
     const routeSearch = normalizedQuery.value.search
 
     if (searchInput.value !== routeSearch) {
@@ -146,6 +151,7 @@ watch(
 )
 
 onUnmounted(() => {
+  // 화면을 떠날 때 예약된 검색과 진행 중인 목록 요청을 모두 정리한다.
   clearTimeout(searchTimer)
   inquiryStore.cancelInquiryListRequest()
 })
@@ -191,6 +197,7 @@ onUnmounted(() => {
         </p>
       </div>
 
+      <!-- 같은 결과 영역에서 로딩, 오류, 빈 목록, 정상 목록 중 하나만 표시한다. -->
       <InquiryListSkeleton v-if="isListLoading" data-testid="inquiry-list-skeleton" />
 
       <ErrorState
@@ -218,6 +225,7 @@ onUnmounted(() => {
       </div>
 
       <template v-else>
+        <!-- CSS 경계에 따라 데스크톱은 표, 작은 화면은 카드 목록을 보여 준다. -->
         <InquiryTable :inquiries="inquiries" />
         <InquiryCardList :inquiries="inquiries" />
         <PaginationControls :pagination="pagination" @page-change="handlePageChange" />

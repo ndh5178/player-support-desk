@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 부모는 오류 내용을 Props로 주고, 이 컴포넌트는 재시도 의도만 retry 이벤트로 알린다.
 defineProps<{
   title: string
   message: string

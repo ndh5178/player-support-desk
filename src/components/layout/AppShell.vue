@@ -5,6 +5,7 @@ import Navigation from './Navigation.vue'
 
 <template>
   <div class="app-shell">
+    <!-- 키보드 사용자가 반복되는 내비게이션을 건너뛰고 본문으로 이동할 수 있다. -->
     <a class="skip-link" href="#main-content">본문 바로가기</a>
 
     <aside class="app-shell__sidebar" aria-label="앱 내비게이션">
@@ -20,6 +21,7 @@ import Navigation from './Navigation.vue'
 
     <main id="main-content" class="app-shell__main" tabindex="-1">
       <div class="app-shell__content">
+        <!-- App.vue가 전달한 현재 라우트 화면을 공통 레이아웃 안에 삽입한다. -->
         <slot />
       </div>
     </main>
