@@ -3,6 +3,7 @@ import type { InquiryNote } from '../../types/inquiry'
 import { formatDateTime } from '../../utils/date'
 
 defineProps<{
+  // 메모 원본과 입력값은 부모가 관리하고 이 컴포넌트는 폼과 목록 UI를 담당한다.
   notes: InquiryNote[]
   modelValue: string
   errorMessage: string
@@ -11,6 +12,7 @@ defineProps<{
 }>()
 
 defineEmits<{
+  // update:modelValue는 부모의 noteInput과 v-model 방식으로 값을 동기화하기 위한 이벤트다.
   'update:modelValue': [value: string]
   submit: []
 }>()

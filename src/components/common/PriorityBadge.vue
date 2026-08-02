@@ -8,6 +8,7 @@ const props = defineProps<{
   priority: InquiryPriority
 }>()
 
+// priority Prop이 바뀌면 표시할 한글 문구도 자동으로 다시 계산된다.
 const label = computed(() => getPriorityLabel(props.priority))
 </script>
 

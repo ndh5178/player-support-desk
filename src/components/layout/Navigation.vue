@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 메뉴 정보를 배열로 분리해 같은 구조의 RouterLink를 v-for로 반복한다.
 const navigationItems = [
   { label: '전황 대시보드', to: '/' },
   { label: '플레이어 문의', to: '/inquiries' },

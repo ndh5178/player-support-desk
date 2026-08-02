@@ -8,6 +8,7 @@ const props = defineProps<{
   status: InquiryStatus
 }>()
 
+// status Prop이 바뀌면 표시할 한글 문구도 자동으로 다시 계산된다.
 const label = computed(() => getStatusLabel(props.status))
 </script>
 

@@ -8,6 +8,7 @@ defineProps<{
 }>()
 
 function getPercentage(count: number, total: number): number {
+  // 문의가 없을 때 0으로 나누어 NaN이 표시되는 것을 막는다.
   return total === 0 ? 0 : Math.round((count / total) * 100)
 }
 </script>

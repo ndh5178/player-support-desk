@@ -24,6 +24,7 @@ const emit = defineEmits<{
 const selectedStatus = ref<InquiryStatus>(props.inquiry.status)
 const selectedAssigneeId = ref(props.inquiry.assignee?.id ?? '')
 
+// 저장 성공 등으로 부모의 확정 원본이 바뀌면 폼의 입력 초안도 새 값에 맞춘다.
 watch(
   () => props.inquiry,
   (inquiry) => {
@@ -33,6 +34,7 @@ watch(
 )
 
 const hasChanges = computed(
+  // 원본과 실제로 다른 값이 있을 때만 저장 버튼을 활성화한다.
   () =>
     selectedStatus.value !== props.inquiry.status ||
     selectedAssigneeId.value !== (props.inquiry.assignee?.id ?? ''),
@@ -43,6 +45,7 @@ function submitChanges(): void {
     return
   }
 
+  // 자식은 API를 직접 호출하지 않고 저장할 값만 부모에게 전달한다.
   emit('save', {
     status: selectedStatus.value,
     assigneeId: selectedAssigneeId.value || null,

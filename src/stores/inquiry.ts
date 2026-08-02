@@ -28,6 +28,7 @@ function isAbortError(error: unknown): boolean {
 }
 
 export const useInquiryStore = defineStore('inquiry', () => {
+  // 목록 화면과 상세 화면이 함께 사용하는 서버 데이터를 Pinia 상태로 관리한다.
   const inquiries = ref<Inquiry[]>([])
   const pagination = ref<Pagination>({ ...initialPagination })
   const isListLoading = ref(false)
@@ -40,11 +41,14 @@ export const useInquiryStore = defineStore('inquiry', () => {
   const isUpdatingInquiry = ref(false)
   const isAddingNote = ref(false)
   const mutationErrorMessage = ref('')
+
+  // 요청 종류별 Controller를 보관해 새 요청이나 화면 이탈 시 이전 요청을 취소한다.
   let listRequestController: AbortController | null = null
   let detailRequestController: AbortController | null = null
   let mutationRequestController: AbortController | null = null
 
   async function fetchInquiryList(query: InquiryListQuery): Promise<void> {
+    // 검색과 필터가 빠르게 바뀌면 완료되지 않은 이전 목록 요청은 더 이상 필요하지 않다.
     listRequestController?.abort()
 
     const controller = new AbortController()
@@ -55,6 +59,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     try {
       const response = await getInquiries(query, controller.signal)
 
+      // 취소가 늦게 전달되어도 오래된 응답이 최신 목록을 덮어쓰지 못하게 요청 객체를 비교한다.
       if (listRequestController !== controller) {
         return
       }
@@ -92,6 +97,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   function syncInquiry(inquiry: Inquiry): void {
+    // 변경 성공 결과를 상세 원본과 이미 불러온 목록 항목에 동시에 반영한다.
     currentInquiry.value = inquiry
 
     const listIndex = inquiries.value.findIndex((item) => item.id === inquiry.id)
@@ -113,6 +119,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
     mutationErrorMessage.value = ''
 
     try {
+      // 상세 본문과 담당자 선택 목록은 서로 독립적이므로 동시에 요청한다.
       const [inquiry, agentResponse] = await Promise.all([
         getInquiry(inquiryId, controller.signal),
         getAgents(controller.signal),
@@ -144,6 +151,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   async function saveInquiryChanges(payload: UpdateInquiryRequest): Promise<boolean> {
+    // 두 변경 요청이 겹치거나 현재 문의가 없는 상태에서는 저장을 시작하지 않는다.
     if (!currentInquiry.value || isUpdatingInquiry.value || isAddingNote.value) {
       return false
     }
@@ -163,6 +171,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
         mutationRequestController !== controller ||
         currentInquiry.value?.id !== inquiryId
       ) {
+        // 저장 중 다른 문의로 이동했다면 이전 문의의 응답을 현재 상세 화면에 적용하지 않는다.
         return false
       }
 
@@ -213,6 +222,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
         ...currentInquiry.value,
         updatedAt: note.createdAt,
         notes: [...currentInquiry.value.notes, note],
+        // 메모 API는 생성된 메모만 반환하므로 화면에 즉시 보일 처리 이력은 Store에서 함께 구성한다.
         history: [
           ...currentInquiry.value.history,
           {
@@ -246,6 +256,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   function cancelInquiryDetailRequests(): void {
+    // 상세 화면을 떠날 때 진행 중인 조회와 저장이 이후 상태를 변경하지 못하게 정리한다.
     detailRequestController?.abort()
     mutationRequestController?.abort()
     detailRequestController = null

@@ -15,6 +15,7 @@ const isLoading = ref(true)
 const errorMessage = ref('')
 let requestController: AbortController | null = null
 
+// API 원본 통계를 화면 카드가 요구하는 Props 모양으로 변환하는 파생 값이다.
 const summaryCards = computed(() => {
   if (!dashboard.value) {
     return []
@@ -49,6 +50,7 @@ const summaryCards = computed(() => {
 })
 
 async function loadDashboard(): Promise<void> {
+  // 재시도 시 이전 요청을 취소해 늦게 도착한 응답이 새 결과를 덮지 않게 한다.
   requestController?.abort()
 
   const controller = new AbortController()
@@ -75,10 +77,12 @@ async function loadDashboard(): Promise<void> {
 }
 
 onMounted(() => {
+  // 컴포넌트가 실제 화면에 붙은 뒤 첫 대시보드 조회를 시작한다.
   void loadDashboard()
 })
 
 onUnmounted(() => {
+  // 다른 화면으로 이동한 뒤 완료된 요청이 사라진 컴포넌트 상태를 바꾸지 않게 한다.
   requestController?.abort()
 })
 </script>
@@ -103,6 +107,7 @@ onUnmounted(() => {
       </RouterLink>
     </header>
 
+    <!-- 로딩 → 오류 → 성공 순서로 서로 배타적인 화면 상태를 표시한다. -->
     <DashboardSkeleton v-if="isLoading" data-testid="dashboard-skeleton" />
 
     <ErrorState

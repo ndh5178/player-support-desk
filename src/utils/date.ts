@@ -10,6 +10,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat('ko-KR', {
 })
 
 export function formatRelativeTime(value: string, now = new Date()): string {
+  // Intl.RelativeTimeFormat은 미래를 양수, 과거를 음수로 받아 자동으로 한국어를 만든다.
   const targetTime = new Date(value).getTime()
   const differenceInMinutes = Math.round((targetTime - now.getTime()) / (60 * 1000))
 
@@ -33,6 +34,7 @@ export function formatRelativeTime(value: string, now = new Date()): string {
     return relativeTimeFormatter.format(differenceInDays, 'day')
   }
 
+  // 일주일 이상 지난 값은 상대 표현보다 실제 날짜가 더 이해하기 쉬워 절대 시각으로 표시한다.
   return dateTimeFormatter.format(targetTime)
 }
 

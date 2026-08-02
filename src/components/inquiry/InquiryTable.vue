@@ -8,6 +8,7 @@ import { formatDateTime } from '../../utils/date'
 import { getCategoryLabel } from '../../utils/inquiry'
 
 defineProps<{
+  // 데스크톱에서 사용할 동일한 문의 배열을 행 단위로 표시한다.
   inquiries: Inquiry[]
 }>()
 </script>

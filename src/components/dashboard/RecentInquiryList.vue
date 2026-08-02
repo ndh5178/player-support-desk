@@ -8,6 +8,7 @@ import { formatDateTime, formatRelativeTime } from '../../utils/date'
 import { getCategoryLabel } from '../../utils/inquiry'
 
 defineProps<{
+  // 조회와 정렬은 부모가 담당하고, 이 컴포넌트는 전달받은 최근 문의를 표시한다.
   inquiries: Inquiry[]
 }>()
 </script>

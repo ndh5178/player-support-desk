@@ -19,6 +19,7 @@ interface RequestOptions extends RequestInit {
   signal?: AbortSignal
 }
 
+// 브라우저와 jsdom 테스트 모두에서 같은 상대 API 경로를 사용할 수 있게 절대 URL로 만든다.
 function createApiUrl(path: string): URL {
   const baseUrl =
     typeof window === 'undefined' ? 'http://localhost' : window.location.origin
@@ -38,6 +39,7 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
 
   let body: unknown
 
+  // 오류 응답이 JSON이 아니어도 원래 HTTP 상태를 보존해 일관된 ApiError로 변환한다.
   try {
     body = await response.json()
   } catch {
@@ -73,6 +75,7 @@ export function getInquiries(
 ): Promise<PaginatedResponse<Inquiry>> {
   const searchParams = new URLSearchParams()
 
+  // 값이 있는 조회 조건만 URL Query Parameter에 포함한다.
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
       searchParams.set(key, String(value))

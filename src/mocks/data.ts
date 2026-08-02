@@ -132,6 +132,7 @@ const customers = [
 ] as const satisfies readonly Customer[]
 
 interface InquiryTemplate {
+  // 반복되는 고객·이력 객체 대신 문의마다 달라지는 값만 초기 템플릿에 기록한다.
   id: string
   title: string
   content: string
@@ -479,6 +480,7 @@ function getAgent(agentId: string | undefined): Agent | null {
 }
 
 function getEventTime(createdAt: Date, now: Date, progress: number): string {
+  // 접수와 현재 시각 사이의 비율을 사용해 배정·상태 변경·메모 시각을 자연스럽게 배치한다.
   const elapsed = Math.max(now.getTime() - createdAt.getTime(), 0)
   return new Date(createdAt.getTime() + elapsed * progress).toISOString()
 }
@@ -547,11 +549,13 @@ function createNotes(
 }
 
 export function createSeedInquiries(now = new Date()): Inquiry[] {
+  // 고정 날짜 대신 실행 시각을 기준으로 만들어 언제 실행해도 SLA 정상·지연 사례가 함께 보인다.
   return inquiryTemplates.map((template) => {
     const createdAt = new Date(now.getTime() - template.createdHoursAgo * HOUR_IN_MS)
     const assignee = getAgent(template.assigneeId)
     const history = createHistory(template, createdAt, now, assignee)
     const notes = createNotes(template, createdAt, now, assignee)
+    // 메모가 있으면 메모 시각, 없으면 마지막 이력을 문의의 최근 변경 시각으로 사용한다.
     const latestActivityAt =
       notes.at(-1)?.createdAt ?? history.at(-1)?.createdAt ?? createdAt.toISOString()
 
