@@ -38,6 +38,14 @@ const itemRange = computed(() => {
 
   return `총 ${props.pagination.total.toLocaleString('ko-KR')}건 중 ${start.toLocaleString('ko-KR')}–${end.toLocaleString('ko-KR')}건`
 })
+
+function getAriaCurrent(page: number, currentPage: number): 'page' | undefined {
+  if (page === currentPage) {
+    return 'page'
+  }
+
+  return undefined
+}
 </script>
 
 <template>
@@ -50,30 +58,30 @@ const itemRange = computed(() => {
     >
       <button
         type="button"
-        :disabled="pagination.page <= 1"
+        v-bind:disabled="pagination.page <= 1"
         aria-label="이전 페이지"
-        @click="emit('page-change', pagination.page - 1)"
+        v-on:click="emit('page-change', pagination.page - 1)"
       >
         <span aria-hidden="true">←</span>
       </button>
 
       <button
         v-for="page in visiblePages"
-        :key="page"
+        v-bind:key="page"
         type="button"
-        :class="{ 'pagination__page--active': page === pagination.page }"
-        :aria-current="page === pagination.page ? 'page' : undefined"
-        :aria-label="`${page}페이지`"
-        @click="emit('page-change', page)"
+        v-bind:class="{ 'pagination__page--active': page === pagination.page }"
+        v-bind:aria-current="getAriaCurrent(page, pagination.page)"
+        v-bind:aria-label="`${page}페이지`"
+        v-on:click="emit('page-change', page)"
       >
         {{ page }}
       </button>
 
       <button
         type="button"
-        :disabled="pagination.page >= pagination.totalPages"
+        v-bind:disabled="pagination.page >= pagination.totalPages"
         aria-label="다음 페이지"
-        @click="emit('page-change', pagination.page + 1)"
+        v-on:click="emit('page-change', pagination.page + 1)"
       >
         <span aria-hidden="true">→</span>
       </button>

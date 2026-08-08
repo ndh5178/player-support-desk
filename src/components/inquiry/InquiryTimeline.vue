@@ -42,12 +42,18 @@ function getHistoryDescription(item: InquiryHistory): string {
 
     <ol class="timeline">
       <!-- 원본 배열을 바꾸지 않고 복사본만 뒤집어 최신 활동부터 표시한다. -->
-      <li v-for="item in [...history].reverse()" :key="item.id">
-        <span class="timeline__marker" :data-type="item.type" aria-hidden="true"></span>
+      <li v-for="item in history.slice().reverse()" v-bind:key="item.id">
+        <span
+          class="timeline__marker"
+          v-bind:data-type="item.type"
+          aria-hidden="true"
+        ></span>
         <article>
           <div class="timeline__meta">
             <strong>{{ historyLabels[item.type] }}</strong>
-            <time :datetime="item.createdAt">{{ formatDateTime(item.createdAt) }}</time>
+            <time v-bind:datetime="item.createdAt">{{
+              formatDateTime(item.createdAt)
+            }}</time>
           </div>
           <p>{{ getHistoryDescription(item) }}</p>
           <span class="timeline__actor">{{ item.actorName }}</span>

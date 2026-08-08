@@ -1,7 +1,7 @@
 import { enableAutoUnmount } from '@vue/test-utils'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 
-import { server } from './mocks/server'
+import { registerDefaultHandlers, server } from './mocks/server'
 
 enableAutoUnmount(afterEach)
 
@@ -11,6 +11,7 @@ beforeAll(() => {
 
 afterEach(() => {
   server.resetHandlers()
+  registerDefaultHandlers()
 })
 
 afterAll(() => {

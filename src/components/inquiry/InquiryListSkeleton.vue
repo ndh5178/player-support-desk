@@ -4,7 +4,7 @@
 
     <div class="list-skeleton__table" aria-hidden="true">
       <span class="list-skeleton__header"></span>
-      <span v-for="index in 6" :key="index" class="list-skeleton__row"></span>
+      <span v-for="index in 6" v-bind:key="index" class="list-skeleton__row"></span>
     </div>
   </div>
 </template>

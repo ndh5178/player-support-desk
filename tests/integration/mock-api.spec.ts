@@ -34,7 +34,7 @@ describe('문의 Mock REST API', () => {
     const createdTimes = response.data.map((inquiry) =>
       new Date(inquiry.createdAt).getTime(),
     )
-    expect(createdTimes).toEqual([...createdTimes].sort((a, b) => b - a))
+    expect(createdTimes).toEqual(createdTimes.slice().sort((a, b) => b - a))
   })
 
   it('검색, 필터, 오래된순 정렬 조건을 함께 적용한다', async () => {
@@ -92,7 +92,12 @@ describe('문의 Mock REST API', () => {
     const afterDashboard = await getDashboard()
 
     expect(updatedInquiry.status).toBe('IN_PROGRESS')
-    expect(updatedInquiry.assignee?.id).toBe('agent-002')
+
+    if (updatedInquiry.assignee === null) {
+      throw new Error('변경된 문의 담당자를 찾을 수 없습니다.')
+    }
+
+    expect(updatedInquiry.assignee.id).toBe('agent-002')
     expect(updatedInquiry.history).toHaveLength(beforeInquiry.history.length + 2)
     expect(persistedInquiry).toEqual(updatedInquiry)
     expect(afterDashboard.newCount).toBe(beforeDashboard.newCount - 1)
@@ -107,7 +112,13 @@ describe('문의 Mock REST API', () => {
 
     expect(createdNote.content).toBe('결제 영수증을 추가로 확인했습니다.')
     expect(inquiry.notes.at(-1)).toEqual(createdNote)
-    expect(inquiry.history.at(-1)?.type).toBe('NOTE_ADDED')
+    const latestHistory = inquiry.history.at(-1)
+
+    if (latestHistory === undefined) {
+      throw new Error('최근 문의 처리 이력을 찾을 수 없습니다.')
+    }
+
+    expect(latestHistory.type).toBe('NOTE_ADDED')
 
     await expect(
       addInquiryNote('INQ-2026-0002', { content: '   ' }),

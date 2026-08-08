@@ -23,6 +23,15 @@ const initialPagination: Pagination = {
   totalPages: 0,
 }
 
+function createInitialPagination(): Pagination {
+  return {
+    page: initialPagination.page,
+    limit: initialPagination.limit,
+    total: initialPagination.total,
+    totalPages: initialPagination.totalPages,
+  }
+}
+
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError'
 }
@@ -30,7 +39,7 @@ function isAbortError(error: unknown): boolean {
 export const useInquiryStore = defineStore('inquiry', () => {
   // 목록 화면과 상세 화면이 함께 사용하는 서버 데이터를 Pinia 상태로 관리한다.
   const inquiries = ref<Inquiry[]>([])
-  const pagination = ref<Pagination>({ ...initialPagination })
+  const pagination = ref<Pagination>(createInitialPagination())
   const isListLoading = ref(false)
   const listErrorMessage = ref('')
   const currentInquiry = ref<Inquiry | null>(null)
@@ -49,7 +58,9 @@ export const useInquiryStore = defineStore('inquiry', () => {
 
   async function fetchInquiryList(query: InquiryListQuery): Promise<void> {
     // 검색과 필터가 빠르게 바뀌면 완료되지 않은 이전 목록 요청은 더 이상 필요하지 않다.
-    listRequestController?.abort()
+    if (listRequestController !== null) {
+      listRequestController.abort()
+    }
 
     const controller = new AbortController()
     listRequestController = controller
@@ -72,9 +83,12 @@ export const useInquiryStore = defineStore('inquiry', () => {
       }
 
       inquiries.value = []
-      pagination.value = { ...initialPagination }
-      listErrorMessage.value =
-        error instanceof ApiError ? error.message : '문의 목록을 불러오지 못했습니다.'
+      pagination.value = createInitialPagination()
+      if (error instanceof ApiError) {
+        listErrorMessage.value = error.message
+      } else {
+        listErrorMessage.value = '문의 목록을 불러오지 못했습니다.'
+      }
     } finally {
       if (listRequestController === controller) {
         isListLoading.value = false
@@ -84,7 +98,9 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   function cancelInquiryListRequest(): void {
-    listRequestController?.abort()
+    if (listRequestController !== null) {
+      listRequestController.abort()
+    }
     listRequestController = null
     isListLoading.value = false
   }
@@ -92,7 +108,7 @@ export const useInquiryStore = defineStore('inquiry', () => {
   function resetInquiryList(): void {
     cancelInquiryListRequest()
     inquiries.value = []
-    pagination.value = { ...initialPagination }
+    pagination.value = createInitialPagination()
     listErrorMessage.value = ''
   }
 
@@ -108,7 +124,9 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   async function fetchInquiryDetail(inquiryId: string): Promise<void> {
-    detailRequestController?.abort()
+    if (detailRequestController !== null) {
+      detailRequestController.abort()
+    }
 
     const controller = new AbortController()
     detailRequestController = controller
@@ -120,10 +138,12 @@ export const useInquiryStore = defineStore('inquiry', () => {
 
     try {
       // 상세 본문과 담당자 선택 목록은 서로 독립적이므로 동시에 요청한다.
-      const [inquiry, agentResponse] = await Promise.all([
+      const inquiryAndAgentResponse = await Promise.all([
         getInquiry(inquiryId, controller.signal),
         getAgents(controller.signal),
       ])
+      const inquiry = inquiryAndAgentResponse[0]
+      const agentResponse = inquiryAndAgentResponse[1]
 
       if (detailRequestController !== controller) {
         return
@@ -137,11 +157,13 @@ export const useInquiryStore = defineStore('inquiry', () => {
       }
 
       currentInquiry.value = null
-      detailErrorMessage.value =
-        error instanceof ApiError
-          ? error.message
-          : '문의 상세 정보를 불러오지 못했습니다.'
-      detailErrorStatus.value = error instanceof ApiError ? error.status : null
+      if (error instanceof ApiError) {
+        detailErrorMessage.value = error.message
+        detailErrorStatus.value = error.status
+      } else {
+        detailErrorMessage.value = '문의 상세 정보를 불러오지 못했습니다.'
+        detailErrorStatus.value = null
+      }
     } finally {
       if (detailRequestController === controller) {
         isDetailLoading.value = false
@@ -156,7 +178,9 @@ export const useInquiryStore = defineStore('inquiry', () => {
       return false
     }
 
-    mutationRequestController?.abort()
+    if (mutationRequestController !== null) {
+      mutationRequestController.abort()
+    }
 
     const inquiryId = currentInquiry.value.id
     const controller = new AbortController()
@@ -169,7 +193,8 @@ export const useInquiryStore = defineStore('inquiry', () => {
 
       if (
         mutationRequestController !== controller ||
-        currentInquiry.value?.id !== inquiryId
+        currentInquiry.value === null ||
+        currentInquiry.value.id !== inquiryId
       ) {
         // 저장 중 다른 문의로 이동했다면 이전 문의의 응답을 현재 상세 화면에 적용하지 않는다.
         return false
@@ -182,10 +207,11 @@ export const useInquiryStore = defineStore('inquiry', () => {
         return false
       }
 
-      mutationErrorMessage.value =
-        error instanceof ApiError
-          ? error.message
-          : '문의 변경 사항을 저장하지 못했습니다.'
+      if (error instanceof ApiError) {
+        mutationErrorMessage.value = error.message
+      } else {
+        mutationErrorMessage.value = '문의 변경 사항을 저장하지 못했습니다.'
+      }
       return false
     } finally {
       if (mutationRequestController === controller) {
@@ -200,7 +226,9 @@ export const useInquiryStore = defineStore('inquiry', () => {
       return false
     }
 
-    mutationRequestController?.abort()
+    if (mutationRequestController !== null) {
+      mutationRequestController.abort()
+    }
 
     const inquiryId = currentInquiry.value.id
     const controller = new AbortController()
@@ -209,39 +237,43 @@ export const useInquiryStore = defineStore('inquiry', () => {
     mutationErrorMessage.value = ''
 
     try {
-      const note = await addInquiryNote(inquiryId, { content }, controller.signal)
+      const note = await addInquiryNote(
+        inquiryId,
+        { content: content },
+        controller.signal,
+      )
 
       if (
         mutationRequestController !== controller ||
-        currentInquiry.value?.id !== inquiryId
+        currentInquiry.value === null ||
+        currentInquiry.value.id !== inquiryId
       ) {
         return false
       }
 
-      syncInquiry({
-        ...currentInquiry.value,
-        updatedAt: note.createdAt,
-        notes: [...currentInquiry.value.notes, note],
-        // 메모 API는 생성된 메모만 반환하므로 화면에 즉시 보일 처리 이력은 Store에서 함께 구성한다.
-        history: [
-          ...currentInquiry.value.history,
-          {
-            id: `${note.id}-history`,
-            type: 'NOTE_ADDED',
-            actorName: note.author.name,
-            description: '내부 메모를 추가했습니다.',
-            createdAt: note.createdAt,
-          },
-        ],
+      const updatedInquiry = Object.assign({}, currentInquiry.value)
+      updatedInquiry.updatedAt = note.createdAt
+      updatedInquiry.notes = currentInquiry.value.notes.concat(note)
+      // 메모 API는 생성된 메모만 반환하므로 화면에 즉시 보일 처리 이력은 Store에서 함께 구성한다.
+      updatedInquiry.history = currentInquiry.value.history.concat({
+        id: `${note.id}-history`,
+        type: 'NOTE_ADDED',
+        actorName: note.author.name,
+        description: '내부 메모를 추가했습니다.',
+        createdAt: note.createdAt,
       })
+      syncInquiry(updatedInquiry)
       return true
     } catch (error) {
       if (mutationRequestController !== controller || isAbortError(error)) {
         return false
       }
 
-      mutationErrorMessage.value =
-        error instanceof ApiError ? error.message : '운영 메모를 저장하지 못했습니다.'
+      if (error instanceof ApiError) {
+        mutationErrorMessage.value = error.message
+      } else {
+        mutationErrorMessage.value = '운영 메모를 저장하지 못했습니다.'
+      }
       return false
     } finally {
       if (mutationRequestController === controller) {
@@ -257,8 +289,12 @@ export const useInquiryStore = defineStore('inquiry', () => {
 
   function cancelInquiryDetailRequests(): void {
     // 상세 화면을 떠날 때 진행 중인 조회와 저장이 이후 상태를 변경하지 못하게 정리한다.
-    detailRequestController?.abort()
-    mutationRequestController?.abort()
+    if (detailRequestController !== null) {
+      detailRequestController.abort()
+    }
+    if (mutationRequestController !== null) {
+      mutationRequestController.abort()
+    }
     detailRequestController = null
     mutationRequestController = null
     isDetailLoading.value = false
@@ -276,26 +312,26 @@ export const useInquiryStore = defineStore('inquiry', () => {
   }
 
   return {
-    inquiries,
-    pagination,
-    isListLoading,
-    listErrorMessage,
-    currentInquiry,
-    agents,
-    isDetailLoading,
-    detailErrorMessage,
-    detailErrorStatus,
-    isUpdatingInquiry,
-    isAddingNote,
-    mutationErrorMessage,
-    fetchInquiryList,
-    cancelInquiryListRequest,
-    resetInquiryList,
-    fetchInquiryDetail,
-    saveInquiryChanges,
-    createInquiryNote,
-    clearMutationError,
-    cancelInquiryDetailRequests,
-    resetInquiryDetail,
+    inquiries: inquiries,
+    pagination: pagination,
+    isListLoading: isListLoading,
+    listErrorMessage: listErrorMessage,
+    currentInquiry: currentInquiry,
+    agents: agents,
+    isDetailLoading: isDetailLoading,
+    detailErrorMessage: detailErrorMessage,
+    detailErrorStatus: detailErrorStatus,
+    isUpdatingInquiry: isUpdatingInquiry,
+    isAddingNote: isAddingNote,
+    mutationErrorMessage: mutationErrorMessage,
+    fetchInquiryList: fetchInquiryList,
+    cancelInquiryListRequest: cancelInquiryListRequest,
+    resetInquiryList: resetInquiryList,
+    fetchInquiryDetail: fetchInquiryDetail,
+    saveInquiryChanges: saveInquiryChanges,
+    createInquiryNote: createInquiryNote,
+    clearMutationError: clearMutationError,
+    cancelInquiryDetailRequests: cancelInquiryDetailRequests,
+    resetInquiryDetail: resetInquiryDetail,
   }
 })

@@ -21,15 +21,23 @@ const emit = defineEmits<{
   save: [payload: UpdateInquiryRequest]
 }>()
 
+function getAssigneeId(inquiry: Inquiry): string {
+  if (inquiry.assignee === null) {
+    return ''
+  }
+
+  return inquiry.assignee.id
+}
+
 const selectedStatus = ref<InquiryStatus>(props.inquiry.status)
-const selectedAssigneeId = ref(props.inquiry.assignee?.id ?? '')
+const selectedAssigneeId = ref(getAssigneeId(props.inquiry))
 
 // 저장 성공 등으로 부모의 확정 원본이 바뀌면 폼의 입력 초안도 새 값에 맞춘다.
 watch(
   () => props.inquiry,
   (inquiry) => {
     selectedStatus.value = inquiry.status
-    selectedAssigneeId.value = inquiry.assignee?.id ?? ''
+    selectedAssigneeId.value = getAssigneeId(inquiry)
   },
 )
 
@@ -37,8 +45,34 @@ const hasChanges = computed(
   // 원본과 실제로 다른 값이 있을 때만 저장 버튼을 활성화한다.
   () =>
     selectedStatus.value !== props.inquiry.status ||
-    selectedAssigneeId.value !== (props.inquiry.assignee?.id ?? ''),
+    selectedAssigneeId.value !== getAssigneeId(props.inquiry),
 )
+
+function changeSelectedStatus(event: Event): void {
+  const selectElement = event.target as HTMLSelectElement
+  selectedStatus.value = selectElement.value as InquiryStatus
+}
+
+function changeSelectedAssignee(event: Event): void {
+  const selectElement = event.target as HTMLSelectElement
+  selectedAssigneeId.value = selectElement.value
+}
+
+function getAssignmentStateLabel(inquiry: Inquiry): string {
+  if (inquiry.assignee) {
+    return '담당자 배정됨'
+  }
+
+  return '미배정'
+}
+
+function getSaveButtonLabel(isSaving: boolean): string {
+  if (isSaving) {
+    return '저장 중…'
+  }
+
+  return '변경 사항 저장'
+}
 
 function submitChanges(): void {
   if (!hasChanges.value || props.isSaving || props.disabled) {
@@ -59,20 +93,25 @@ function submitChanges(): void {
       <div>
         <h2 id="management-panel-title">문의 처리</h2>
       </div>
-      <span :class="{ 'management-panel__state--assigned': inquiry.assignee }">
-        {{ inquiry.assignee ? '담당자 배정됨' : '미배정' }}
+      <span v-bind:class="{ 'management-panel__state--assigned': inquiry.assignee }">
+        {{ getAssignmentStateLabel(inquiry) }}
       </span>
     </div>
 
-    <form class="management-panel__form" @submit.prevent="submitChanges">
+    <form class="management-panel__form" v-on:submit.prevent="submitChanges">
       <label>
         <span>문의 상태</span>
         <select
-          v-model="selectedStatus"
-          :disabled="isSaving || disabled"
+          v-bind:value="selectedStatus"
+          v-bind:disabled="isSaving || disabled"
           name="inquiry-status"
+          v-on:change="changeSelectedStatus"
         >
-          <option v-for="status in INQUIRY_STATUSES" :key="status" :value="status">
+          <option
+            v-for="status in INQUIRY_STATUSES"
+            v-bind:key="status"
+            v-bind:value="status"
+          >
             {{ getStatusLabel(status) }}
           </option>
         </select>
@@ -81,12 +120,13 @@ function submitChanges(): void {
       <label>
         <span>담당자</span>
         <select
-          v-model="selectedAssigneeId"
-          :disabled="isSaving || disabled"
+          v-bind:value="selectedAssigneeId"
+          v-bind:disabled="isSaving || disabled"
           name="inquiry-assignee"
+          v-on:change="changeSelectedAssignee"
         >
           <option value="">미배정</option>
-          <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+          <option v-for="agent in agents" v-bind:key="agent.id" v-bind:value="agent.id">
             {{ agent.name }} · {{ agent.team }}
           </option>
         </select>
@@ -98,11 +138,11 @@ function submitChanges(): void {
 
       <button
         type="submit"
-        :disabled="!hasChanges || isSaving || disabled"
-        :aria-busy="isSaving"
+        v-bind:disabled="!hasChanges || isSaving || disabled"
+        v-bind:aria-busy="isSaving"
       >
         <span v-if="isSaving" class="button-spinner" aria-hidden="true"></span>
-        {{ isSaving ? '저장 중…' : '변경 사항 저장' }}
+        {{ getSaveButtonLabel(isSaving) }}
       </button>
     </form>
   </section>

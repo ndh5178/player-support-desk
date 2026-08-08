@@ -19,7 +19,11 @@ function cloneInquiries(inquiries: Inquiry[]): Inquiry[] {
 
 function getBrowserStorage(): Storage | null {
   try {
-    return typeof window === 'undefined' ? null : window.localStorage
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    return window.localStorage
   } catch {
     return null
   }

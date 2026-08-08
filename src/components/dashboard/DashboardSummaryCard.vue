@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <article class="summary-card" :class="`summary-card--${tone}`">
+  <article class="summary-card" v-bind:class="`summary-card--${tone}`">
     <div class="summary-card__heading">
       <p>{{ label }}</p>
       <span class="summary-card__icon" aria-hidden="true">

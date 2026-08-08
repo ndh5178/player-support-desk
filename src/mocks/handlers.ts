@@ -8,6 +8,7 @@ import {
   isInquiryPriority,
   isInquirySort,
   isInquiryStatus,
+  type Agent,
   type Inquiry,
   type InquiryCategory,
   type InquiryHistory,
@@ -18,7 +19,15 @@ import {
 import { cloneSerializable } from '../utils/clone'
 
 const API_ROOT = '/api'
-const MOCK_DELAY_MS = import.meta.env.MODE === 'test' ? 0 : 250
+function getMockDelay(): number {
+  if (import.meta.env.MODE === 'test') {
+    return 0
+  }
+
+  return 250
+}
+
+const MOCK_DELAY_MS = getMockDelay()
 const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 10
 const MAX_LIMIT = 50
@@ -36,10 +45,13 @@ interface ParsedListQuery {
 }
 
 function createId(prefix: string): string {
-  const suffix =
-    typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  let suffix: string
+
+  if (typeof crypto.randomUUID === 'function') {
+    suffix = crypto.randomUUID()
+  } else {
+    suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  }
 
   return `${prefix}-${suffix}`
 }
@@ -56,16 +68,24 @@ function errorResponse(
   message: string,
   details?: Record<string, string>,
 ) {
-  return HttpResponse.json(
-    {
-      error: {
-        code,
-        message,
-        ...(details ? { details } : {}),
-      },
+  const errorBody: {
+    error: {
+      code: string
+      message: string
+      details?: Record<string, string>
+    }
+  } = {
+    error: {
+      code: code,
+      message: message,
     },
-    { status },
-  )
+  }
+
+  if (details !== undefined) {
+    errorBody.error.details = details
+  }
+
+  return HttpResponse.json(errorBody, { status: status })
 }
 
 function parsePositiveInteger(value: string | null, fallback: number): number | null {
@@ -79,18 +99,32 @@ function parsePositiveInteger(value: string | null, fallback: number): number | 
 
   const parsedValue = Number(value)
 
-  return Number.isSafeInteger(parsedValue) && parsedValue > 0 ? parsedValue : null
+  if (Number.isSafeInteger(parsedValue) && parsedValue > 0) {
+    return parsedValue
+  }
+
+  return null
 }
 
 function parseListQuery(
   url: URL,
 ): { query: ParsedListQuery } | { response: ReturnType<typeof errorResponse> } {
   // 실제 백엔드처럼 Query Parameter를 검증하고 잘못된 필드는 400 응답 정보로 모은다.
-  const search = url.searchParams.get('search')?.trim() ?? ''
+  const searchParameter = url.searchParams.get('search')
+  let search = ''
+
+  if (searchParameter !== null) {
+    search = searchParameter.trim()
+  }
   const status = url.searchParams.get('status')
   const priority = url.searchParams.get('priority')
   const category = url.searchParams.get('category')
-  const sort = url.searchParams.get('sort') ?? 'newest'
+  const sortParameter = url.searchParams.get('sort')
+  let sort = 'newest'
+
+  if (sortParameter !== null) {
+    sort = sortParameter
+  }
   const page = parsePositiveInteger(url.searchParams.get('page'), DEFAULT_PAGE)
   const limit = parsePositiveInteger(url.searchParams.get('limit'), DEFAULT_LIMIT)
   const details: Record<string, string> = {}
@@ -130,13 +164,31 @@ function parseListQuery(
     }
   }
 
+  let parsedStatus: InquiryStatus | undefined
+  let parsedPriority: InquiryPriority | undefined
+  let parsedCategory: InquiryCategory | undefined
+  let parsedSort: InquirySort = 'newest'
+
+  if (status !== null && isInquiryStatus(status)) {
+    parsedStatus = status
+  }
+  if (priority !== null && isInquiryPriority(priority)) {
+    parsedPriority = priority
+  }
+  if (category !== null && isInquiryCategory(category)) {
+    parsedCategory = category
+  }
+  if (isInquirySort(sort)) {
+    parsedSort = sort
+  }
+
   return {
     query: {
-      search,
-      status: status !== null && isInquiryStatus(status) ? status : undefined,
-      priority: priority !== null && isInquiryPriority(priority) ? priority : undefined,
-      category: category !== null && isInquiryCategory(category) ? category : undefined,
-      sort: isInquirySort(sort) ? sort : 'newest',
+      search: search,
+      status: parsedStatus,
+      priority: parsedPriority,
+      category: parsedCategory,
+      sort: parsedSort,
       page: page!,
       limit: limit!,
     },
@@ -153,9 +205,9 @@ function findInquiry(id: string): {
   const index = inquiries.findIndex((inquiry) => inquiry.id === id)
 
   return {
-    inquiries,
+    inquiries: inquiries,
     inquiry: inquiries[index],
-    index,
+    index: index,
   }
 }
 
@@ -167,12 +219,12 @@ function createHistory(
 ): InquiryHistory {
   return {
     id: createId('history'),
-    type,
+    type: type,
     actorName: currentAgent.name,
-    description,
+    description: description,
     createdAt: new Date().toISOString(),
-    previousValue,
-    nextValue,
+    previousValue: previousValue,
+    nextValue: nextValue,
   }
 }
 
@@ -193,14 +245,15 @@ export const handlers: RequestHandler[] = [
         (inquiry) =>
           inquiry.status !== 'RESOLVED' && new Date(inquiry.slaDueAt).getTime() < now,
       ).length,
-      recentInquiries: [...inquiries]
+      recentInquiries: inquiries
+        .slice()
         .sort(
           (first, second) =>
             new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime(),
         )
         .slice(0, 5),
       priorityDistribution: INQUIRY_PRIORITIES.map((priority) => ({
-        priority,
+        priority: priority,
         count: inquiries.filter((inquiry) => inquiry.priority === priority).length,
       })),
     })
@@ -212,7 +265,8 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json({ data: agents })
   }),
 
-  http.get(`${API_ROOT}/inquiries`, async ({ request }) => {
+  http.get(`${API_ROOT}/inquiries`, async (requestContext) => {
+    const request = requestContext.request
     await waitForMockDelay()
 
     const parsedQuery = parseListQuery(new URL(request.url))
@@ -221,7 +275,13 @@ export const handlers: RequestHandler[] = [
       return parsedQuery.response
     }
 
-    const { search, status, priority, category, sort, page, limit } = parsedQuery.query
+    const search = parsedQuery.query.search
+    const status = parsedQuery.query.status
+    const priority = parsedQuery.query.priority
+    const category = parsedQuery.query.category
+    const sort = parsedQuery.query.sort
+    const page = parsedQuery.query.page
+    const limit = parsedQuery.query.limit
     // 검색 → 필터 → 정렬 → 페이지 자르기 순서로 실제 목록 API 동작을 재현한다.
     const normalizedSearch = search.toLocaleLowerCase('ko-KR')
     const filteredInquiries = getStoredInquiries()
@@ -243,7 +303,11 @@ export const handlers: RequestHandler[] = [
         const firstTime = new Date(first.createdAt).getTime()
         const secondTime = new Date(second.createdAt).getTime()
 
-        return sort === 'newest' ? secondTime - firstTime : firstTime - secondTime
+        if (sort === 'newest') {
+          return secondTime - firstTime
+        }
+
+        return firstTime - secondTime
       })
 
     const total = filteredInquiries.length
@@ -252,19 +316,21 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json({
       data: filteredInquiries.slice(startIndex, startIndex + limit),
       pagination: {
-        page,
-        limit,
-        total,
+        page: page,
+        limit: limit,
+        total: total,
         totalPages: Math.ceil(total / limit),
       },
     })
   }),
 
-  http.get(`${API_ROOT}/inquiries/:id`, async ({ params }) => {
+  http.get(`${API_ROOT}/inquiries/:id`, async (requestContext) => {
+    const params = requestContext.params
     await waitForMockDelay()
 
     const id = String(params.id)
-    const { inquiry } = findInquiry(id)
+    const inquiryResult = findInquiry(id)
+    const inquiry = inquiryResult.inquiry
 
     if (!inquiry) {
       return errorResponse(404, 'INQUIRY_NOT_FOUND', '요청한 문의를 찾을 수 없습니다.')
@@ -273,11 +339,16 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json(inquiry)
   }),
 
-  http.patch(`${API_ROOT}/inquiries/:id`, async ({ params, request }) => {
+  http.patch(`${API_ROOT}/inquiries/:id`, async (requestContext) => {
+    const params = requestContext.params
+    const request = requestContext.request
     await waitForMockDelay()
 
     const id = String(params.id)
-    const { inquiries, inquiry, index } = findInquiry(id)
+    const inquiryResult = findInquiry(id)
+    const inquiries = inquiryResult.inquiries
+    const inquiry = inquiryResult.inquiry
+    const index = inquiryResult.index
 
     if (!inquiry) {
       return errorResponse(404, 'INQUIRY_NOT_FOUND', '요청한 문의를 찾을 수 없습니다.')
@@ -309,10 +380,11 @@ export const handlers: RequestHandler[] = [
       details.status = '지원하지 않는 문의 상태입니다.'
     }
 
-    const nextAssignee =
-      hasAssigneeId && typeof body.assigneeId === 'string'
-        ? agents.find((agent) => agent.id === body.assigneeId)
-        : null
+    let nextAssignee: Agent | null | undefined = null
+
+    if (hasAssigneeId && typeof body.assigneeId === 'string') {
+      nextAssignee = agents.find((agent) => agent.id === body.assigneeId)
+    }
 
     if (
       hasAssigneeId &&
@@ -350,25 +422,52 @@ export const handlers: RequestHandler[] = [
 
     if (hasAssigneeId) {
       const previousAssignee = nextInquiry.assignee
-      const assigneeChanged = previousAssignee?.id !== (nextAssignee?.id ?? undefined)
+      let previousAssigneeId: string | undefined
+      let nextAssigneeId: string | undefined
+
+      if (previousAssignee !== null) {
+        previousAssigneeId = previousAssignee.id
+      }
+      if (nextAssignee !== null && nextAssignee !== undefined) {
+        nextAssigneeId = nextAssignee.id
+      }
+
+      const assigneeChanged = previousAssigneeId !== nextAssigneeId
 
       if (assigneeChanged) {
+        let historyDescription = '담당자 배정을 해제했습니다.'
+        let previousHistoryValue: string | null = null
+        let nextHistoryValue: string | null = null
+
+        if (nextAssignee !== null && nextAssignee !== undefined) {
+          historyDescription = `${nextAssignee.name} 담당자로 배정했습니다.`
+          nextHistoryValue = nextAssignee.id
+        }
+        if (previousAssignee !== null) {
+          previousHistoryValue = previousAssignee.id
+        }
+
         histories.push(
           createHistory(
             'ASSIGNEE_CHANGED',
-            nextAssignee
-              ? `${nextAssignee.name} 담당자로 배정했습니다.`
-              : '담당자 배정을 해제했습니다.',
-            previousAssignee?.id ?? null,
-            nextAssignee?.id ?? null,
+            historyDescription,
+            previousHistoryValue,
+            nextHistoryValue,
           ),
         )
-        nextInquiry.assignee = nextAssignee ?? null
+
+        if (nextAssignee === undefined) {
+          nextInquiry.assignee = null
+        } else {
+          nextInquiry.assignee = nextAssignee
+        }
       }
     }
 
     if (histories.length > 0) {
-      nextInquiry.history.push(...histories)
+      for (const history of histories) {
+        nextInquiry.history.push(history)
+      }
       nextInquiry.updatedAt = new Date().toISOString()
       inquiries[index] = nextInquiry
       saveStoredInquiries(inquiries)
@@ -377,11 +476,16 @@ export const handlers: RequestHandler[] = [
     return HttpResponse.json(nextInquiry)
   }),
 
-  http.post(`${API_ROOT}/inquiries/:id/notes`, async ({ params, request }) => {
+  http.post(`${API_ROOT}/inquiries/:id/notes`, async (requestContext) => {
+    const params = requestContext.params
+    const request = requestContext.request
     await waitForMockDelay()
 
     const id = String(params.id)
-    const { inquiries, inquiry, index } = findInquiry(id)
+    const inquiryResult = findInquiry(id)
+    const inquiries = inquiryResult.inquiries
+    const inquiry = inquiryResult.inquiry
+    const index = inquiryResult.index
 
     if (!inquiry) {
       return errorResponse(404, 'INQUIRY_NOT_FOUND', '요청한 문의를 찾을 수 없습니다.')
@@ -396,11 +500,17 @@ export const handlers: RequestHandler[] = [
     }
 
     // 공백을 제거한 1~1,000자의 문자열만 내부 메모로 저장한다.
-    const contentValue =
-      rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
-        ? (rawBody as Record<string, unknown>).content
-        : undefined
-    const content = typeof contentValue === 'string' ? contentValue.trim() : ''
+    let contentValue: unknown
+
+    if (rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)) {
+      contentValue = (rawBody as Record<string, unknown>).content
+    }
+
+    let content = ''
+
+    if (typeof contentValue === 'string') {
+      content = contentValue.trim()
+    }
 
     if (content.length === 0 || content.length > 1000) {
       return errorResponse(400, 'VALIDATION_ERROR', '메모 내용을 확인해 주세요.', {
@@ -411,9 +521,9 @@ export const handlers: RequestHandler[] = [
     const createdAt = new Date().toISOString()
     const note = {
       id: createId('note'),
-      content,
+      content: content,
       author: currentAgent,
-      createdAt,
+      createdAt: createdAt,
     }
     const nextInquiry = cloneSerializable(inquiry)
 
@@ -423,7 +533,7 @@ export const handlers: RequestHandler[] = [
       type: 'NOTE_ADDED',
       actorName: currentAgent.name,
       description: '내부 메모를 추가했습니다.',
-      createdAt,
+      createdAt: createdAt,
     })
     nextInquiry.updatedAt = createdAt
     inquiries[index] = nextInquiry

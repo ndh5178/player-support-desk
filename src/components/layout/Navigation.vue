@@ -9,8 +9,8 @@ const navigationItems = [
 <template>
   <nav aria-label="주요 메뉴">
     <ul class="navigation">
-      <li v-for="item in navigationItems" :key="item.to">
-        <RouterLink class="navigation__link" :to="item.to">
+      <li v-for="item in navigationItems" v-bind:key="item.to">
+        <RouterLink class="navigation__link" v-bind:to="item.to">
           <span class="navigation__icon" aria-hidden="true">
             <svg v-if="item.to === '/'" viewBox="0 0 24 24">
               <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />

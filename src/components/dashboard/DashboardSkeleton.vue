@@ -3,7 +3,7 @@
     <span class="dashboard-skeleton__announcement"> 운영 현황을 불러오는 중입니다. </span>
 
     <div class="dashboard-skeleton__cards" aria-hidden="true">
-      <div v-for="index in 4" :key="index" class="skeleton-card">
+      <div v-for="index in 4" v-bind:key="index" class="skeleton-card">
         <span></span>
         <strong></strong>
         <span></span>
@@ -13,11 +13,11 @@
     <div class="dashboard-skeleton__panels" aria-hidden="true">
       <div class="skeleton-panel skeleton-panel--wide">
         <span class="skeleton-panel__title"></span>
-        <span v-for="index in 5" :key="index" class="skeleton-panel__row"></span>
+        <span v-for="index in 5" v-bind:key="index" class="skeleton-panel__row"></span>
       </div>
       <div class="skeleton-panel">
         <span class="skeleton-panel__title"></span>
-        <span v-for="index in 4" :key="index" class="skeleton-panel__bar"></span>
+        <span v-for="index in 4" v-bind:key="index" class="skeleton-panel__bar"></span>
       </div>
     </div>
   </div>

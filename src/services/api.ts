@@ -21,21 +21,32 @@ interface RequestOptions extends RequestInit {
 
 // 브라우저와 jsdom 테스트 모두에서 같은 상대 API 경로를 사용할 수 있게 절대 URL로 만든다.
 function createApiUrl(path: string): URL {
-  const baseUrl =
-    typeof window === 'undefined' ? 'http://localhost' : window.location.origin
+  let baseUrl = 'http://localhost'
+
+  if (typeof window !== 'undefined') {
+    baseUrl = window.location.origin
+  }
 
   return new URL(`${API_ROOT}${path}`, baseUrl)
 }
 
 async function requestJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const response = await fetch(createApiUrl(path), {
-    ...options,
-    headers: {
-      Accept: 'application/json',
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...options.headers,
-    },
+  const headers = new Headers()
+  headers.set('Accept', 'application/json')
+
+  if (options.body) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  const callerHeaders = new Headers(options.headers)
+  callerHeaders.forEach((value, key) => {
+    headers.set(key, value)
   })
+
+  const fetchOptions: RequestOptions = Object.assign({}, options)
+  fetchOptions.headers = headers
+
+  const response = await fetch(createApiUrl(path), fetchOptions)
 
   let body: unknown
 
@@ -48,25 +59,38 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
 
   if (!response.ok) {
     const apiError = body as Partial<ApiErrorBody> | null
-    const error = apiError?.error
+    let error: ApiErrorBody['error'] | undefined
 
-    throw new ApiError(
-      response.status,
-      error?.code ?? 'UNKNOWN_ERROR',
-      error?.message ?? '요청을 처리하지 못했습니다.',
-      error?.details,
-    )
+    if (apiError !== null) {
+      error = apiError.error
+    }
+
+    let errorCode = 'UNKNOWN_ERROR'
+    let errorMessage = '요청을 처리하지 못했습니다.'
+    let errorDetails: Record<string, string> | undefined
+
+    if (error !== undefined) {
+      if (error.code !== undefined) {
+        errorCode = error.code
+      }
+      if (error.message !== undefined) {
+        errorMessage = error.message
+      }
+      errorDetails = error.details
+    }
+
+    throw new ApiError(response.status, errorCode, errorMessage, errorDetails)
   }
 
   return body as T
 }
 
 export function getDashboard(signal?: AbortSignal): Promise<DashboardData> {
-  return requestJson<DashboardData>('/dashboard', { signal })
+  return requestJson<DashboardData>('/dashboard', { signal: signal })
 }
 
 export function getAgents(signal?: AbortSignal): Promise<AgentListResponse> {
-  return requestJson<AgentListResponse>('/agents', { signal })
+  return requestJson<AgentListResponse>('/agents', { signal: signal })
 }
 
 export function getInquiries(
@@ -76,22 +100,29 @@ export function getInquiries(
   const searchParams = new URLSearchParams()
 
   // 값이 있는 조회 조건만 URL Query Parameter에 포함한다.
-  Object.entries(query).forEach(([key, value]) => {
+  Object.entries(query).forEach((entry) => {
+    const key = entry[0]
+    const value = entry[1]
+
     if (value !== undefined && value !== '') {
       searchParams.set(key, String(value))
     }
   })
 
   const queryString = searchParams.toString()
+  let inquiryListPath = '/inquiries'
 
-  return requestJson<PaginatedResponse<Inquiry>>(
-    `/inquiries${queryString ? `?${queryString}` : ''}`,
-    { signal },
-  )
+  if (queryString) {
+    inquiryListPath = `/inquiries?${queryString}`
+  }
+
+  return requestJson<PaginatedResponse<Inquiry>>(inquiryListPath, { signal: signal })
 }
 
 export function getInquiry(inquiryId: string, signal?: AbortSignal): Promise<Inquiry> {
-  return requestJson<Inquiry>(`/inquiries/${encodeURIComponent(inquiryId)}`, { signal })
+  return requestJson<Inquiry>(`/inquiries/${encodeURIComponent(inquiryId)}`, {
+    signal: signal,
+  })
 }
 
 export function updateInquiry(
@@ -102,7 +133,7 @@ export function updateInquiry(
   return requestJson<Inquiry>(`/inquiries/${encodeURIComponent(inquiryId)}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
-    signal,
+    signal: signal,
   })
 }
 
@@ -114,6 +145,6 @@ export function addInquiryNote(
   return requestJson<InquiryNote>(`/inquiries/${encodeURIComponent(inquiryId)}/notes`, {
     method: 'POST',
     body: JSON.stringify(payload),
-    signal,
+    signal: signal,
   })
 }

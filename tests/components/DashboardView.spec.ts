@@ -60,8 +60,14 @@ describe('DashboardView', () => {
       .filter((link) => String(link.props('to')).startsWith('/inquiries/'))
 
     expect(detailLinks).toHaveLength(5)
-    expect(detailLinks[0]?.props('to')).toBe('/inquiries/INQ-2026-0001')
-    expect(detailLinks[0]?.attributes('aria-label')).toContain('문의 상세 보기')
+    const firstDetailLink = detailLinks[0]
+
+    if (firstDetailLink === undefined) {
+      throw new Error('첫 번째 문의 상세 링크를 찾을 수 없습니다.')
+    }
+
+    expect(firstDetailLink.props('to')).toBe('/inquiries/INQ-2026-0001')
+    expect(firstDetailLink.attributes('aria-label')).toContain('문의 상세 보기')
   })
 
   it('API 오류를 알리고 다시 시도하면 정상 화면을 표시한다', async () => {

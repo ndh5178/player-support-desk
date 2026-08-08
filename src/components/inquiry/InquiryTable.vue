@@ -30,11 +30,11 @@ defineProps<{
         </tr>
       </thead>
       <tbody>
-        <tr v-for="inquiry in inquiries" :key="inquiry.id">
+        <tr v-for="inquiry in inquiries" v-bind:key="inquiry.id">
           <td>
             <div class="inquiry-cell">
               <div>
-                <RouterLink :to="`/inquiries/${inquiry.id}`">
+                <RouterLink v-bind:to="`/inquiries/${inquiry.id}`">
                   {{ inquiry.title }}
                 </RouterLink>
                 <span>{{ inquiry.id }}</span>
@@ -50,10 +50,10 @@ defineProps<{
               {{ inquiry.customer.languageName }}
             </span>
           </td>
-          <td><PriorityBadge :priority="inquiry.priority" /></td>
-          <td><StatusBadge :status="inquiry.status" /></td>
+          <td><PriorityBadge v-bind:priority="inquiry.priority"></PriorityBadge></td>
+          <td><StatusBadge v-bind:status="inquiry.status"></StatusBadge></td>
           <td>
-            <time :datetime="inquiry.createdAt">
+            <time v-bind:datetime="inquiry.createdAt">
               {{ formatDateTime(inquiry.createdAt) }}
             </time>
           </td>

@@ -19,8 +19,8 @@ defineProps<{
         <h2 id="inquiry-content-title">플레이어 메시지</h2>
       </div>
       <div class="overview-card__badges" aria-label="문의 분류">
-        <PriorityBadge :priority="inquiry.priority" />
-        <StatusBadge :status="inquiry.status" />
+        <PriorityBadge v-bind:priority="inquiry.priority"></PriorityBadge>
+        <StatusBadge v-bind:status="inquiry.status"></StatusBadge>
       </div>
     </div>
 
@@ -34,7 +34,7 @@ defineProps<{
       <div>
         <dt>접수 시각</dt>
         <dd>
-          <time :datetime="inquiry.createdAt">{{
+          <time v-bind:datetime="inquiry.createdAt">{{
             formatDateTime(inquiry.createdAt)
           }}</time>
         </dd>
@@ -42,7 +42,7 @@ defineProps<{
       <div>
         <dt>최근 변경</dt>
         <dd>
-          <time :datetime="inquiry.updatedAt">{{
+          <time v-bind:datetime="inquiry.updatedAt">{{
             formatDateTime(inquiry.updatedAt)
           }}</time>
         </dd>
@@ -50,7 +50,9 @@ defineProps<{
       <div>
         <dt>SLA 기한</dt>
         <dd>
-          <time :datetime="inquiry.slaDueAt">{{ formatDateTime(inquiry.slaDueAt) }}</time>
+          <time v-bind:datetime="inquiry.slaDueAt">{{
+            formatDateTime(inquiry.slaDueAt)
+          }}</time>
         </dd>
       </div>
     </dl>

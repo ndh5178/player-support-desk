@@ -9,7 +9,11 @@ defineProps<{
 
 function getPercentage(count: number, total: number): number {
   // 문의가 없을 때 0으로 나누어 NaN이 표시되는 것을 막는다.
-  return total === 0 ? 0 : Math.round((count / total) * 100)
+  if (total === 0) {
+    return 0
+  }
+
+  return Math.round((count / total) * 100)
 }
 </script>
 
@@ -25,8 +29,8 @@ function getPercentage(count: number, total: number): number {
     <ul class="distribution__list">
       <li
         v-for="item in items"
-        :key="item.priority"
-        :class="`distribution__item--${item.priority.toLowerCase()}`"
+        v-bind:key="item.priority"
+        v-bind:class="`distribution__item--${item.priority.toLowerCase()}`"
       >
         <div class="distribution__label">
           <span>{{ getPriorityLabel(item.priority) }}</span>
@@ -35,12 +39,12 @@ function getPercentage(count: number, total: number): number {
         <div
           class="distribution__track"
           role="progressbar"
-          :aria-label="`${getPriorityLabel(item.priority)} 문의 비율`"
+          v-bind:aria-label="`${getPriorityLabel(item.priority)} 문의 비율`"
           aria-valuemin="0"
           aria-valuemax="100"
-          :aria-valuenow="getPercentage(item.count, total)"
+          v-bind:aria-valuenow="getPercentage(item.count, total)"
         >
-          <span :style="{ width: `${getPercentage(item.count, total)}%` }"></span>
+          <span v-bind:style="{ width: `${getPercentage(item.count, total)}%` }"></span>
         </div>
         <p>{{ getPercentage(item.count, total) }}%</p>
       </li>

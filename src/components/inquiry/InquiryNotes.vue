@@ -12,10 +12,26 @@ defineProps<{
 }>()
 
 defineEmits<{
-  // update:modelValue는 부모의 noteInput과 v-model 방식으로 값을 동기화하기 위한 이벤트다.
+  // update:modelValue는 부모의 noteInput에 새 입력값을 전달하는 이벤트다.
   'update:modelValue': [value: string]
   submit: []
 }>()
+
+function getAriaDescribedBy(errorMessage: string): string {
+  if (errorMessage) {
+    return 'inquiry-note-help inquiry-note-error'
+  }
+
+  return 'inquiry-note-help'
+}
+
+function getSaveButtonLabel(isSaving: boolean): string {
+  if (isSaving) {
+    return '메모 저장 중…'
+  }
+
+  return '메모 추가'
+}
 </script>
 
 <template>
@@ -27,20 +43,20 @@ defineEmits<{
       <span>{{ notes.length }}개</span>
     </div>
 
-    <form class="notes-form" novalidate @submit.prevent="$emit('submit')">
+    <form class="notes-form" novalidate v-on:submit.prevent="$emit('submit')">
       <label for="inquiry-note">새 메모</label>
       <textarea
         id="inquiry-note"
-        :value="modelValue"
-        :disabled="isSaving || disabled"
-        :aria-invalid="Boolean(errorMessage)"
-        :aria-describedby="
-          errorMessage ? 'inquiry-note-help inquiry-note-error' : 'inquiry-note-help'
-        "
+        v-bind:value="modelValue"
+        v-bind:disabled="isSaving || disabled"
+        v-bind:aria-invalid="Boolean(errorMessage)"
+        v-bind:aria-describedby="getAriaDescribedBy(errorMessage)"
         maxlength="1000"
         rows="5"
         placeholder="다른 운영 담당자에게 공유할 처리 내용을 입력해 주세요."
-        @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
+        v-on:input="
+          $emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)
+        "
       ></textarea>
       <div class="notes-form__support">
         <p id="inquiry-note-help">공백 제외 1자 이상 입력해 주세요.</p>
@@ -49,13 +65,17 @@ defineEmits<{
       <p v-if="errorMessage" id="inquiry-note-error" class="notes-form__error">
         {{ errorMessage }}
       </p>
-      <button type="submit" :disabled="isSaving || disabled" :aria-busy="isSaving">
-        {{ isSaving ? '메모 저장 중…' : '메모 추가' }}
+      <button
+        type="submit"
+        v-bind:disabled="isSaving || disabled"
+        v-bind:aria-busy="isSaving"
+      >
+        {{ getSaveButtonLabel(isSaving) }}
       </button>
     </form>
 
     <div class="notes-list">
-      <article v-for="note in [...notes].reverse()" :key="note.id" class="note">
+      <article v-for="note in notes.slice().reverse()" v-bind:key="note.id" class="note">
         <div class="note__avatar" aria-hidden="true">
           {{ note.author.name.slice(0, 1) }}
         </div>
@@ -63,7 +83,9 @@ defineEmits<{
           <div class="note__meta">
             <strong>{{ note.author.name }}</strong>
             <span>{{ note.author.team }}</span>
-            <time :datetime="note.createdAt">{{ formatDateTime(note.createdAt) }}</time>
+            <time v-bind:datetime="note.createdAt">{{
+              formatDateTime(note.createdAt)
+            }}</time>
           </div>
           <p>{{ note.content }}</p>
         </div>
