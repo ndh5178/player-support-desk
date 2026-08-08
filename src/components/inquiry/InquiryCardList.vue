@@ -7,6 +7,14 @@ import type { Inquiry } from '../../types/inquiry'
 import { formatDateTime } from '../../utils/date'
 import { getCategoryLabel } from '../../utils/inquiry'
 
+function getAssigneeName(inquiry: Inquiry): string {
+  if (inquiry.assignee === null) {
+    return '미배정'
+  }
+
+  return inquiry.assignee.name
+}
+
 defineProps<{
   // 작은 화면에서는 표 대신 같은 문의 배열을 터치하기 쉬운 카드로 표시한다.
   inquiries: Inquiry[]
@@ -15,10 +23,10 @@ defineProps<{
 
 <template>
   <ul class="inquiry-cards" aria-label="접수된 플레이어 지원 케이스 목록">
-    <li v-for="inquiry in inquiries" :key="inquiry.id">
+    <li v-for="inquiry in inquiries" v-bind:key="inquiry.id">
       <RouterLink
-        :to="`/inquiries/${inquiry.id}`"
-        :aria-label="`${inquiry.title} 문의 상세 보기`"
+        v-bind:to="`/inquiries/${inquiry.id}`"
+        v-bind:aria-label="`${inquiry.title} 문의 상세 보기`"
       >
         <div class="inquiry-card__meta">
           <span>{{ inquiry.id }}</span>
@@ -28,8 +36,8 @@ defineProps<{
         <h2>{{ inquiry.title }}</h2>
 
         <div class="inquiry-card__badges">
-          <PriorityBadge :priority="inquiry.priority" />
-          <StatusBadge :status="inquiry.status" />
+          <PriorityBadge v-bind:priority="inquiry.priority"></PriorityBadge>
+          <StatusBadge v-bind:status="inquiry.status"></StatusBadge>
         </div>
 
         <dl>
@@ -46,12 +54,12 @@ defineProps<{
           </div>
           <div>
             <dt>담당자</dt>
-            <dd>{{ inquiry.assignee?.name ?? '미배정' }}</dd>
+            <dd>{{ getAssigneeName(inquiry) }}</dd>
           </div>
           <div>
             <dt>접수</dt>
             <dd>
-              <time :datetime="inquiry.createdAt">
+              <time v-bind:datetime="inquiry.createdAt">
                 {{ formatDateTime(inquiry.createdAt) }}
               </time>
             </dd>

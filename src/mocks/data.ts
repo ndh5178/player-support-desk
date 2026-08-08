@@ -476,7 +476,13 @@ function getAgent(agentId: string | undefined): Agent | null {
     return null
   }
 
-  return agents.find((agent) => agent.id === agentId) ?? null
+  const matchingAgent = agents.find((agent) => agent.id === agentId)
+
+  if (matchingAgent === undefined) {
+    return null
+  }
+
+  return matchingAgent
 }
 
 function getEventTime(createdAt: Date, now: Date, progress: number): string {
@@ -491,11 +497,17 @@ function createHistory(
   now: Date,
   assignee: Agent | null,
 ): InquiryHistory[] {
+  let createdActorName = 'System'
+
+  if (template.customerIndex >= 0) {
+    createdActorName = '고객'
+  }
+
   const history: InquiryHistory[] = [
     {
       id: `${template.id}-history-created`,
       type: 'CREATED',
-      actorName: template.customerIndex >= 0 ? '고객' : 'System',
+      actorName: createdActorName,
       description: '고객 문의가 접수되었습니다.',
       createdAt: createdAt.toISOString(),
     },
@@ -514,10 +526,16 @@ function createHistory(
   }
 
   if (template.status !== 'NEW') {
+    let statusActorName = '운영 담당자'
+
+    if (assignee !== null) {
+      statusActorName = assignee.name
+    }
+
     history.push({
       id: `${template.id}-history-status`,
       type: 'STATUS_CHANGED',
-      actorName: assignee?.name ?? '운영 담당자',
+      actorName: statusActorName,
       description: `문의 상태가 ${template.status}(으)로 변경되었습니다.`,
       createdAt: getEventTime(createdAt, now, 0.3),
       previousValue: 'NEW',
@@ -556,8 +574,16 @@ export function createSeedInquiries(now = new Date()): Inquiry[] {
     const history = createHistory(template, createdAt, now, assignee)
     const notes = createNotes(template, createdAt, now, assignee)
     // 메모가 있으면 메모 시각, 없으면 마지막 이력을 문의의 최근 변경 시각으로 사용한다.
-    const latestActivityAt =
-      notes.at(-1)?.createdAt ?? history.at(-1)?.createdAt ?? createdAt.toISOString()
+    const latestNote = notes.at(-1)
+    const latestHistory = history.at(-1)
+    let latestActivityAt = createdAt.toISOString()
+
+    if (latestHistory !== undefined) {
+      latestActivityAt = latestHistory.createdAt
+    }
+    if (latestNote !== undefined) {
+      latestActivityAt = latestNote.createdAt
+    }
 
     return {
       id: template.id,
@@ -567,14 +593,14 @@ export function createSeedInquiries(now = new Date()): Inquiry[] {
       priority: template.priority,
       status: template.status,
       customer: customers[template.customerIndex]!,
-      assignee,
+      assignee: assignee,
       createdAt: createdAt.toISOString(),
       updatedAt: latestActivityAt,
       slaDueAt: new Date(
         now.getTime() + template.slaHoursFromNow * HOUR_IN_MS,
       ).toISOString(),
-      history,
-      notes,
+      history: history,
+      notes: notes,
     }
   })
 }

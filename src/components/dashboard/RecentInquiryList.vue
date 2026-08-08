@@ -26,11 +26,11 @@ defineProps<{
     </div>
 
     <ul v-if="inquiries.length > 0" class="recent-inquiries__list">
-      <li v-for="inquiry in inquiries" :key="inquiry.id">
+      <li v-for="inquiry in inquiries" v-bind:key="inquiry.id">
         <RouterLink
           class="inquiry-row"
-          :to="`/inquiries/${inquiry.id}`"
-          :aria-label="`${inquiry.title} 문의 상세 보기`"
+          v-bind:to="`/inquiries/${inquiry.id}`"
+          v-bind:aria-label="`${inquiry.title} 문의 상세 보기`"
         >
           <div class="inquiry-row__main">
             <div class="inquiry-row__meta">
@@ -46,13 +46,13 @@ defineProps<{
             </p>
           </div>
           <div class="inquiry-row__status">
-            <PriorityBadge :priority="inquiry.priority" />
-            <StatusBadge :status="inquiry.status" />
+            <PriorityBadge v-bind:priority="inquiry.priority"></PriorityBadge>
+            <StatusBadge v-bind:status="inquiry.status"></StatusBadge>
           </div>
           <time
             class="inquiry-row__time"
-            :datetime="inquiry.createdAt"
-            :title="formatDateTime(inquiry.createdAt)"
+            v-bind:datetime="inquiry.createdAt"
+            v-bind:title="formatDateTime(inquiry.createdAt)"
           >
             {{ formatRelativeTime(inquiry.createdAt) }}
           </time>

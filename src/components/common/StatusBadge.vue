@@ -13,7 +13,7 @@ const label = computed(() => getStatusLabel(props.status))
 </script>
 
 <template>
-  <span class="status-badge" :class="`status-badge--${status.toLowerCase()}`">
+  <span class="status-badge" v-bind:class="`status-badge--${status.toLowerCase()}`">
     <span class="status-badge__dot" aria-hidden="true"></span>
     {{ label }}
   </span>

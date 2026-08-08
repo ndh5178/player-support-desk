@@ -35,6 +35,26 @@ function getInputValue(event: Event): string {
   // DOM Event의 target 타입을 입력 요소로 좁혀 현재 문자열 값을 읽는다.
   return (event.target as HTMLInputElement | HTMLSelectElement).value
 }
+
+function getOptionalFilterValue(value: string | undefined): string {
+  if (value === undefined) {
+    return ''
+  }
+
+  return value
+}
+
+function toggleExpanded(): void {
+  isExpanded.value = !isExpanded.value
+}
+
+function getFilterToggleLabel(): string {
+  if (isExpanded.value) {
+    return '필터 닫기'
+  }
+
+  return '필터 열기'
+}
 </script>
 
 <template>
@@ -46,11 +66,11 @@ function getInputValue(event: Event): string {
       </div>
       <button
         type="button"
-        :aria-expanded="isExpanded"
+        v-bind:aria-expanded="isExpanded"
         aria-controls="inquiry-filter-options"
-        @click="isExpanded = !isExpanded"
+        v-on:click="toggleExpanded"
       >
-        {{ isExpanded ? '필터 닫기' : '필터 열기' }}
+        {{ getFilterToggleLabel() }}
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="m7 10 5 5 5-5" />
         </svg>
@@ -70,24 +90,24 @@ function getInputValue(event: Event): string {
       <input
         id="inquiry-search"
         type="search"
-        :value="search"
+        v-bind:value="search"
         placeholder="케이스 ID, 제목, 플레이어 닉네임"
         autocomplete="off"
-        @input="emit('update:search', getInputValue($event))"
+        v-on:input="emit('update:search', getInputValue($event))"
       />
     </div>
 
     <div
       id="inquiry-filter-options"
       class="filter-bar__options"
-      :class="{ 'filter-bar__options--expanded': isExpanded }"
+      v-bind:class="{ 'filter-bar__options--expanded': isExpanded }"
     >
       <div class="filter-field">
         <label for="status-filter">상태</label>
         <select
           id="status-filter"
-          :value="status ?? ''"
-          @change="
+          v-bind:value="getOptionalFilterValue(status)"
+          v-on:change="
             emit(
               'update:status',
               (getInputValue($event) || undefined) as InquiryStatus | undefined,
@@ -106,8 +126,8 @@ function getInputValue(event: Event): string {
         <label for="priority-filter">우선순위</label>
         <select
           id="priority-filter"
-          :value="priority ?? ''"
-          @change="
+          v-bind:value="getOptionalFilterValue(priority)"
+          v-on:change="
             emit(
               'update:priority',
               (getInputValue($event) || undefined) as InquiryPriority | undefined,
@@ -126,8 +146,8 @@ function getInputValue(event: Event): string {
         <label for="category-filter">카테고리</label>
         <select
           id="category-filter"
-          :value="category ?? ''"
-          @change="
+          v-bind:value="getOptionalFilterValue(category)"
+          v-on:change="
             emit(
               'update:category',
               (getInputValue($event) || undefined) as InquiryCategory | undefined,
@@ -148,8 +168,8 @@ function getInputValue(event: Event): string {
         <label for="sort-filter">정렬</label>
         <select
           id="sort-filter"
-          :value="sort"
-          @change="emit('update:sort', getInputValue($event) as InquirySort)"
+          v-bind:value="sort"
+          v-on:change="emit('update:sort', getInputValue($event) as InquirySort)"
         >
           <option value="newest">최신순</option>
           <option value="oldest">오래된순</option>
@@ -159,8 +179,8 @@ function getInputValue(event: Event): string {
       <button
         class="filter-bar__reset"
         type="button"
-        :disabled="activeFilterCount === 0 && sort === 'newest'"
-        @click="emit('reset')"
+        v-bind:disabled="activeFilterCount === 0 && sort === 'newest'"
+        v-on:click="emit('reset')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 4v6h6M20 20v-6h-6M5.5 15a7 7 0 0 0 11.8 2M18.5 9A7 7 0 0 0 6.7 7" />

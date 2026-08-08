@@ -34,7 +34,7 @@ async function mountInquiryList(
     },
   })
 
-  return { wrapper, router }
+  return { wrapper: wrapper, router: router }
 }
 
 async function waitForList(): Promise<void> {
@@ -49,7 +49,8 @@ describe('InquiryListView', () => {
   })
 
   it('최초 로딩 후 문의 10건과 페이지 정보를 표시한다', async () => {
-    const { wrapper } = await mountInquiryList()
+    const mountedList = await mountInquiryList()
+    const wrapper = mountedList.wrapper
 
     expect(wrapper.get('[data-testid="inquiry-list-skeleton"]').text()).toContain(
       '문의 목록을 불러오는 중입니다.',
@@ -67,7 +68,9 @@ describe('InquiryListView', () => {
   })
 
   it('상태 필터를 URL과 동기화하고 해당 문의만 표시한다', async () => {
-    const { wrapper, router } = await mountInquiryList()
+    const mountedList = await mountInquiryList()
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
 
     await waitForList()
     await wrapper.get('#status-filter').setValue('RESOLVED')
@@ -82,7 +85,9 @@ describe('InquiryListView', () => {
   })
 
   it('검색어를 Debounce한 뒤 URL과 목록에 반영한다', async () => {
-    const { wrapper, router } = await mountInquiryList()
+    const mountedList = await mountInquiryList()
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
 
     await waitForList()
     await wrapper.get('#inquiry-search').setValue('CloudRider')
@@ -101,7 +106,8 @@ describe('InquiryListView', () => {
   })
 
   it('URL Query에서 필터와 정렬 상태를 복원한다', async () => {
-    const { wrapper } = await mountInquiryList('/inquiries?priority=URGENT&sort=oldest')
+    const mountedList = await mountInquiryList('/inquiries?priority=URGENT&sort=oldest')
+    const wrapper = mountedList.wrapper
 
     await waitForList()
 
@@ -117,7 +123,9 @@ describe('InquiryListView', () => {
   })
 
   it('페이지 이동을 URL에 기록한다', async () => {
-    const { wrapper, router } = await mountInquiryList()
+    const mountedList = await mountInquiryList()
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
 
     await waitForList()
     await wrapper.get('[aria-label="다음 페이지"]').trigger('click')
@@ -147,7 +155,8 @@ describe('InquiryListView', () => {
         { once: true },
       ),
     )
-    const { wrapper } = await mountInquiryList()
+    const mountedList = await mountInquiryList()
+    const wrapper = mountedList.wrapper
 
     await waitForList()
 
@@ -163,9 +172,11 @@ describe('InquiryListView', () => {
   })
 
   it('결과가 없는 필터를 초기화해 전체 목록으로 돌아간다', async () => {
-    const { wrapper, router } = await mountInquiryList(
+    const mountedList = await mountInquiryList(
       '/inquiries?status=RESOLVED&priority=URGENT',
     )
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
 
     await waitForList()
 

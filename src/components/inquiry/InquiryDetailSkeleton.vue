@@ -15,7 +15,7 @@
 
     <div class="detail-skeleton__layout">
       <div class="detail-skeleton__main">
-        <section v-for="index in 2" :key="index" class="skeleton-card">
+        <section v-for="index in 2" v-bind:key="index" class="skeleton-card">
           <span class="skeleton-line skeleton-line--heading"></span>
           <span class="skeleton-line"></span>
           <span class="skeleton-line"></span>
@@ -23,7 +23,7 @@
         </section>
       </div>
       <div class="detail-skeleton__aside">
-        <section v-for="index in 2" :key="index" class="skeleton-card">
+        <section v-for="index in 2" v-bind:key="index" class="skeleton-card">
           <span class="skeleton-line skeleton-line--heading"></span>
           <span class="skeleton-field"></span>
           <span class="skeleton-field"></span>

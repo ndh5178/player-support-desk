@@ -15,7 +15,8 @@ describe('inquiry store', () => {
 
   it('빠른 연속 조회에서 이전 요청 결과가 최신 목록을 덮어쓰지 않는다', async () => {
     server.use(
-      http.get('/api/inquiries', async ({ request }) => {
+      http.get('/api/inquiries', async (requestContext) => {
+        const request = requestContext.request
         const search = new URL(request.url).searchParams.get('search')
 
         if (search === 'slow') {
@@ -65,7 +66,13 @@ describe('inquiry store', () => {
     await Promise.all([slowRequest, fastRequest])
 
     expect(store.inquiries).toHaveLength(1)
-    expect(store.inquiries[0]?.id).toBe('result-fast')
+    const firstInquiry = store.inquiries[0]
+
+    if (firstInquiry === undefined) {
+      throw new Error('첫 번째 문의를 찾을 수 없습니다.')
+    }
+
+    expect(firstInquiry.id).toBe('result-fast')
     expect(store.isListLoading).toBe(false)
     expect(store.listErrorMessage).toBe('')
   })

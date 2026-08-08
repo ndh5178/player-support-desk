@@ -51,7 +51,9 @@ const summaryCards = computed(() => {
 
 async function loadDashboard(): Promise<void> {
   // 재시도 시 이전 요청을 취소해 늦게 도착한 응답이 새 결과를 덮지 않게 한다.
-  requestController?.abort()
+  if (requestController !== null) {
+    requestController.abort()
+  }
 
   const controller = new AbortController()
   requestController = controller
@@ -66,8 +68,11 @@ async function loadDashboard(): Promise<void> {
     }
 
     dashboard.value = null
-    errorMessage.value =
-      error instanceof ApiError ? error.message : '잠시 후 다시 시도해 주세요.'
+    if (error instanceof ApiError) {
+      errorMessage.value = error.message
+    } else {
+      errorMessage.value = '잠시 후 다시 시도해 주세요.'
+    }
   } finally {
     if (requestController === controller) {
       isLoading.value = false
@@ -83,12 +88,14 @@ onMounted(() => {
 
 onUnmounted(() => {
   // 다른 화면으로 이동한 뒤 완료된 요청이 사라진 컴포넌트 상태를 바꾸지 않게 한다.
-  requestController?.abort()
+  if (requestController !== null) {
+    requestController.abort()
+  }
 })
 </script>
 
 <template>
-  <div class="page dashboard-page" :aria-busy="isLoading">
+  <div class="page dashboard-page" v-bind:aria-busy="isLoading">
     <header class="page-header dashboard-header">
       <div>
         <div class="dashboard-header__signal" aria-label="현재 운영 환경">
@@ -108,30 +115,38 @@ onUnmounted(() => {
     </header>
 
     <!-- 로딩 → 오류 → 성공 순서로 서로 배타적인 화면 상태를 표시한다. -->
-    <DashboardSkeleton v-if="isLoading" data-testid="dashboard-skeleton" />
+    <DashboardSkeleton
+      v-if="isLoading"
+      data-testid="dashboard-skeleton"
+    ></DashboardSkeleton>
 
     <ErrorState
       v-else-if="errorMessage"
       title="운영 현황을 불러오지 못했습니다"
-      :message="errorMessage"
-      @retry="loadDashboard"
-    />
+      v-bind:message="errorMessage"
+      v-on:retry="loadDashboard"
+    ></ErrorState>
 
     <template v-else-if="dashboard">
       <section class="summary-grid" aria-label="문의 요약">
         <DashboardSummaryCard
           v-for="card in summaryCards"
-          :key="card.label"
-          v-bind="card"
-        />
+          v-bind:key="card.label"
+          v-bind:label="card.label"
+          v-bind:value="card.value"
+          v-bind:description="card.description"
+          v-bind:tone="card.tone"
+        ></DashboardSummaryCard>
       </section>
 
       <div class="dashboard-content">
-        <RecentInquiryList :inquiries="dashboard.recentInquiries" />
+        <RecentInquiryList
+          v-bind:inquiries="dashboard.recentInquiries"
+        ></RecentInquiryList>
         <PriorityDistribution
-          :items="dashboard.priorityDistribution"
-          :total="dashboard.totalCount"
-        />
+          v-bind:items="dashboard.priorityDistribution"
+          v-bind:total="dashboard.totalCount"
+        ></PriorityDistribution>
       </div>
     </template>
   </div>

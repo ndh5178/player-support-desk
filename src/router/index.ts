@@ -73,10 +73,17 @@ const router = createRouter({
 
 router.afterEach(async (to, from) => {
   // 라우트별 meta.title을 브라우저 탭 제목에 반영한다.
-  const title = typeof to.meta.title === 'string' ? to.meta.title : ''
-  document.title = title
-    ? `${title} | BATTLEGROUNDS Player Support Ops`
-    : 'BATTLEGROUNDS Player Support Ops'
+  let title = ''
+
+  if (typeof to.meta.title === 'string') {
+    title = to.meta.title
+  }
+
+  if (title) {
+    document.title = `${title} | BATTLEGROUNDS Player Support Ops`
+  } else {
+    document.title = 'BATTLEGROUNDS Player Support Ops'
+  }
 
   if (from === START_LOCATION || to.path === from.path) {
     // 최초 접속과 필터 Query만 바뀐 경우에는 사용자가 두고 있던 포커스를 빼앗지 않는다.

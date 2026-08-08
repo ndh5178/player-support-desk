@@ -44,8 +44,8 @@ async function mountInquiryDetail(
         plugins: [pinia, router],
       },
     }),
-    router,
-    pinia,
+    router: router,
+    pinia: pinia,
   }
 }
 
@@ -61,7 +61,8 @@ describe('InquiryDetailView', () => {
   })
 
   it('문의 본문과 고객 정보, 처리 이력을 표시한다', async () => {
-    const { wrapper } = await mountInquiryDetail()
+    const mountedDetail = await mountInquiryDetail()
+    const wrapper = mountedDetail.wrapper
 
     expect(wrapper.get('[data-testid="inquiry-detail-skeleton"]').text()).toContain(
       '문의 상세 정보를 불러오는 중입니다.',
@@ -77,7 +78,9 @@ describe('InquiryDetailView', () => {
   })
 
   it('상태와 담당자 변경을 저장하고 Store와 처리 이력을 갱신한다', async () => {
-    const { wrapper, pinia } = await mountInquiryDetail()
+    const mountedDetail = await mountInquiryDetail()
+    const wrapper = mountedDetail.wrapper
+    const pinia = mountedDetail.pinia
     const store = useInquiryStore(pinia)
 
     await waitForDetail()
@@ -86,8 +89,17 @@ describe('InquiryDetailView', () => {
     await wrapper.get('.management-panel__form').trigger('submit')
     await waitForDetail()
 
-    expect(store.currentInquiry?.status).toBe('IN_PROGRESS')
-    expect(store.currentInquiry?.assignee?.id).toBe('agent-002')
+    if (store.currentInquiry === null) {
+      throw new Error('현재 문의를 찾을 수 없습니다.')
+    }
+
+    expect(store.currentInquiry.status).toBe('IN_PROGRESS')
+
+    if (store.currentInquiry.assignee === null) {
+      throw new Error('현재 문의 담당자를 찾을 수 없습니다.')
+    }
+
+    expect(store.currentInquiry.assignee.id).toBe('agent-002')
     expect(wrapper.get('[role="status"]').text()).toContain(
       '케이스 상태와 담당자 변경 사항을 저장했습니다.',
     )
@@ -97,7 +109,8 @@ describe('InquiryDetailView', () => {
   })
 
   it('빈 운영 메모 제출을 API 요청 전에 차단한다', async () => {
-    const { wrapper } = await mountInquiryDetail()
+    const mountedDetail = await mountInquiryDetail()
+    const wrapper = mountedDetail.wrapper
 
     await waitForDetail()
     await wrapper.get('#inquiry-note').setValue('   ')
@@ -110,19 +123,30 @@ describe('InquiryDetailView', () => {
   })
 
   it('운영 메모를 저장하고 입력값과 처리 이력을 갱신한다', async () => {
-    const { wrapper, pinia } = await mountInquiryDetail('/inquiries/INQ-2026-0002')
+    const mountedDetail = await mountInquiryDetail('/inquiries/INQ-2026-0002')
+    const wrapper = mountedDetail.wrapper
+    const pinia = mountedDetail.pinia
     const store = useInquiryStore(pinia)
 
     await waitForDetail()
-    const initialNoteCount = store.currentInquiry?.notes.length ?? 0
-    const initialHistoryCount = store.currentInquiry?.history.length ?? 0
+
+    if (store.currentInquiry === null) {
+      throw new Error('현재 문의를 찾을 수 없습니다.')
+    }
+
+    const initialNoteCount = store.currentInquiry.notes.length
+    const initialHistoryCount = store.currentInquiry.history.length
 
     await wrapper.get('#inquiry-note').setValue('결제 내역 확인을 요청했습니다.')
     await wrapper.get('.notes-form').trigger('submit')
     await waitForDetail()
 
-    expect(store.currentInquiry?.notes).toHaveLength(initialNoteCount + 1)
-    expect(store.currentInquiry?.history).toHaveLength(initialHistoryCount + 1)
+    if (store.currentInquiry === null) {
+      throw new Error('메모 저장 후 현재 문의를 찾을 수 없습니다.')
+    }
+
+    expect(store.currentInquiry.notes).toHaveLength(initialNoteCount + 1)
+    expect(store.currentInquiry.history).toHaveLength(initialHistoryCount + 1)
     expect((wrapper.get('#inquiry-note').element as HTMLTextAreaElement).value).toBe('')
     expect(wrapper.get('.notes-list').text()).toContain('결제 내역 확인을 요청했습니다.')
     expect(wrapper.get('[role="status"]').text()).toContain(
@@ -147,17 +171,28 @@ describe('InquiryDetailView', () => {
         { once: true },
       ),
     )
-    const { wrapper, pinia } = await mountInquiryDetail()
+    const mountedDetail = await mountInquiryDetail()
+    const wrapper = mountedDetail.wrapper
+    const pinia = mountedDetail.pinia
     const store = useInquiryStore(pinia)
 
     await waitForDetail()
-    expect(store.currentInquiry?.status).toBe('NEW')
+
+    if (store.currentInquiry === null) {
+      throw new Error('현재 문의를 찾을 수 없습니다.')
+    }
+
+    expect(store.currentInquiry.status).toBe('NEW')
 
     await wrapper.get('[name="inquiry-status"]').setValue('RESOLVED')
     await wrapper.get('.management-panel__form').trigger('submit')
     await waitForDetail()
 
-    expect(store.currentInquiry?.status).toBe('NEW')
+    if (store.currentInquiry === null) {
+      throw new Error('저장 실패 후 현재 문의를 찾을 수 없습니다.')
+    }
+
+    expect(store.currentInquiry.status).toBe('NEW')
     expect(wrapper.get('[role="alert"]').text()).toContain(
       '변경 사항을 저장할 수 없습니다.',
     )
@@ -167,7 +202,9 @@ describe('InquiryDetailView', () => {
   })
 
   it('존재하지 않는 문의에서 목록 이동과 다시 확인을 제공한다', async () => {
-    const { wrapper, router } = await mountInquiryDetail('/inquiries/INQ-NOT-FOUND')
+    const mountedDetail = await mountInquiryDetail('/inquiries/INQ-NOT-FOUND')
+    const wrapper = mountedDetail.wrapper
+    const router = mountedDetail.router
 
     await waitForDetail()
 
@@ -198,7 +235,8 @@ describe('InquiryDetailView', () => {
         { once: true },
       ),
     )
-    const { wrapper } = await mountInquiryDetail()
+    const mountedDetail = await mountInquiryDetail()
+    const wrapper = mountedDetail.wrapper
 
     await waitForDetail()
 

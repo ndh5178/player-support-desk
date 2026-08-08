@@ -39,7 +39,7 @@ async function mountApplication(initialLocation: string) {
   await router.isReady()
 
   return {
-    router,
+    router: router,
     wrapper: mount(App, {
       attachTo: document.body,
       global: {
@@ -73,7 +73,9 @@ describe('핵심 사용자 흐름', () => {
   })
 
   it('문의 상태 변경을 목록과 대시보드 집계에 반영한다', async () => {
-    const { router, wrapper } = await mountApplication('/')
+    const mountedApplication = await mountApplication('/')
+    const router = mountedApplication.router
+    const wrapper = mountedApplication.wrapper
 
     await waitForView()
     const initialNewCount = getSummaryValue(wrapper, '신규 문의')
@@ -100,8 +102,12 @@ describe('핵심 사용자 흐름', () => {
       .findAll('tbody tr')
       .find((row) => row.text().includes('INQ-2026-0001'))
 
-    expect(updatedRow?.text()).toContain('처리 중')
-    expect(updatedRow?.text()).toContain('박민준')
+    if (updatedRow === undefined) {
+      throw new Error('변경된 문의 행을 찾을 수 없습니다.')
+    }
+
+    expect(updatedRow.text()).toContain('처리 중')
+    expect(updatedRow.text()).toContain('박민준')
 
     await wrapper.get('nav a[href="/"]').trigger('click')
     await waitForView()
@@ -158,7 +164,9 @@ describe('핵심 사용자 흐름', () => {
         { once: true },
       ),
     )
-    const { router, wrapper } = await mountApplication('/inquiries?status=NEW')
+    const mountedApplication = await mountApplication('/inquiries?status=NEW')
+    const router = mountedApplication.router
+    const wrapper = mountedApplication.wrapper
 
     await waitForView()
     expect(wrapper.get('[role="alert"]').text()).toContain(

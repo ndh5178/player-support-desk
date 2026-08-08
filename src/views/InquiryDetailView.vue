@@ -12,7 +12,7 @@ import InquiryNotes from '../components/inquiry/InquiryNotes.vue'
 import InquiryOverview from '../components/inquiry/InquiryOverview.vue'
 import InquiryTimeline from '../components/inquiry/InquiryTimeline.vue'
 import { useInquiryStore } from '../stores/inquiry'
-import type { UpdateInquiryRequest } from '../types/inquiry'
+import type { Inquiry, UpdateInquiryRequest } from '../types/inquiry'
 import { formatDateTime } from '../utils/date'
 
 interface Feedback {
@@ -23,16 +23,15 @@ interface Feedback {
 const route = useRoute()
 const inquiryStore = useInquiryStore()
 // Store의 확정된 서버 상태와 아래의 입력 초안을 분리해 저장 실패 시 원본을 지킨다.
-const {
-  currentInquiry,
-  agents,
-  isDetailLoading,
-  detailErrorMessage,
-  detailErrorStatus,
-  isUpdatingInquiry,
-  isAddingNote,
-  mutationErrorMessage,
-} = storeToRefs(inquiryStore)
+const inquiryStoreRefs = storeToRefs(inquiryStore)
+const currentInquiry = inquiryStoreRefs.currentInquiry
+const agents = inquiryStoreRefs.agents
+const isDetailLoading = inquiryStoreRefs.isDetailLoading
+const detailErrorMessage = inquiryStoreRefs.detailErrorMessage
+const detailErrorStatus = inquiryStoreRefs.detailErrorStatus
+const isUpdatingInquiry = inquiryStoreRefs.isUpdatingInquiry
+const isAddingNote = inquiryStoreRefs.isAddingNote
+const mutationErrorMessage = inquiryStoreRefs.mutationErrorMessage
 
 const noteInput = ref('')
 const noteErrorMessage = ref('')
@@ -41,7 +40,20 @@ const feedback = ref<Feedback | null>(null)
 // 동적 라우트 값은 배열일 수도 있으므로 상세 조회에 사용할 하나의 문자열로 정규화한다.
 const inquiryId = computed(() => {
   const id = route.params.id
-  return Array.isArray(id) ? (id[0] ?? '') : (id ?? '')
+
+  if (Array.isArray(id)) {
+    if (id[0] === undefined) {
+      return ''
+    }
+
+    return id[0]
+  }
+
+  if (id === undefined) {
+    return ''
+  }
+
+  return id
 })
 
 const isNotFound = computed(() => detailErrorStatus.value === 404)
@@ -56,12 +68,25 @@ const slaSignal = computed(() => {
   const totalMinutes = Math.max(1, Math.round(Math.abs(difference) / 60_000))
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-  const duration = [hours > 0 ? `${hours}시간` : '', minutes > 0 ? `${minutes}분` : '']
-    .filter(Boolean)
-    .join(' ')
+  const durationParts: string[] = []
+
+  if (hours > 0) {
+    durationParts.push(`${hours}시간`)
+  }
+
+  if (minutes > 0) {
+    durationParts.push(`${minutes}분`)
+  }
+
+  const duration = durationParts.join(' ')
+  let label = `SLA ${duration} 남음`
+
+  if (difference < 0) {
+    label = `SLA ${duration} 초과`
+  }
 
   return {
-    label: difference < 0 ? `SLA ${duration} 초과` : `SLA ${duration} 남음`,
+    label: label,
     overdue: difference < 0,
   }
 })
@@ -70,6 +95,38 @@ function resetLocalState(): void {
   noteInput.value = ''
   noteErrorMessage.value = ''
   feedback.value = null
+}
+
+function getAssigneeName(inquiry: Inquiry): string {
+  if (inquiry.assignee === null) {
+    return '미배정'
+  }
+
+  return inquiry.assignee.name
+}
+
+function getMutationErrorMessage(fallbackMessage: string): string {
+  if (mutationErrorMessage.value) {
+    return mutationErrorMessage.value
+  }
+
+  return fallbackMessage
+}
+
+function getFeedbackRole(feedbackValue: Feedback): 'alert' | 'status' {
+  if (feedbackValue.type === 'error') {
+    return 'alert'
+  }
+
+  return 'status'
+}
+
+function getFeedbackIcon(feedbackValue: Feedback): string {
+  if (feedbackValue.type === 'success') {
+    return '✓'
+  }
+
+  return '!'
 }
 
 async function loadInquiry(): Promise<void> {
@@ -91,15 +148,17 @@ async function saveInquiryChanges(payload: UpdateInquiryRequest): Promise<void> 
   const saved = await inquiryStore.saveInquiryChanges(payload)
 
   // Store가 반환한 성공 여부를 사용자가 확인할 수 있는 화면 알림으로 바꾼다.
-  feedback.value = saved
-    ? {
-        type: 'success',
-        message: '케이스 상태와 담당자 변경 사항을 저장했습니다.',
-      }
-    : {
-        type: 'error',
-        message: mutationErrorMessage.value || '케이스 변경 사항을 저장하지 못했습니다.',
-      }
+  if (saved) {
+    feedback.value = {
+      type: 'success',
+      message: '케이스 상태와 담당자 변경 사항을 저장했습니다.',
+    }
+  } else {
+    feedback.value = {
+      type: 'error',
+      message: getMutationErrorMessage('케이스 변경 사항을 저장하지 못했습니다.'),
+    }
+  }
 }
 
 function updateNoteInput(value: string): void {
@@ -141,7 +200,7 @@ async function submitNote(): Promise<void> {
 
   feedback.value = {
     type: 'error',
-    message: mutationErrorMessage.value || '지원팀 메모를 저장하지 못했습니다.',
+    message: getMutationErrorMessage('지원팀 메모를 저장하지 못했습니다.'),
   }
 }
 
@@ -156,7 +215,7 @@ onUnmounted(() => {
 
 <template>
   <div class="page inquiry-detail-page">
-    <InquiryDetailSkeleton v-if="isDetailLoading" />
+    <InquiryDetailSkeleton v-if="isDetailLoading"></InquiryDetailSkeleton>
 
     <template v-else-if="isNotFound">
       <section class="not-found-state" aria-labelledby="inquiry-not-found-title">
@@ -167,8 +226,8 @@ onUnmounted(() => {
           >가 삭제됐거나 올바르지 않습니다. 목록에서 다른 케이스를 선택해 주세요.
         </p>
         <div class="not-found-state__actions">
-          <RouterLink :to="{ name: 'inquiry-list' }">문의 목록으로</RouterLink>
-          <button type="button" @click="loadInquiry">다시 확인</button>
+          <RouterLink v-bind:to="{ name: 'inquiry-list' }">문의 목록으로</RouterLink>
+          <button type="button" v-on:click="loadInquiry">다시 확인</button>
         </div>
       </section>
     </template>
@@ -182,14 +241,14 @@ onUnmounted(() => {
       </header>
       <ErrorState
         title="문의 상세 정보를 불러오지 못했습니다"
-        :message="detailErrorMessage"
-        @retry="loadInquiry"
-      />
+        v-bind:message="detailErrorMessage"
+        v-on:retry="loadInquiry"
+      ></ErrorState>
     </template>
 
     <template v-else-if="currentInquiry">
       <header class="detail-header">
-        <RouterLink class="detail-header__back" :to="{ name: 'inquiry-list' }">
+        <RouterLink class="detail-header__back" v-bind:to="{ name: 'inquiry-list' }">
           <span aria-hidden="true">←</span>
           플레이어 문의 큐
         </RouterLink>
@@ -198,16 +257,16 @@ onUnmounted(() => {
             <p class="page-header__eyebrow">{{ currentInquiry.id }}</p>
             <h1>{{ currentInquiry.title }}</h1>
             <div class="detail-header__intel" aria-label="케이스 핵심 상태">
-              <PriorityBadge :priority="currentInquiry.priority" />
-              <StatusBadge :status="currentInquiry.status" />
-              <span :class="{ 'detail-header__sla--overdue': slaSignal.overdue }">
+              <PriorityBadge v-bind:priority="currentInquiry.priority"></PriorityBadge>
+              <StatusBadge v-bind:status="currentInquiry.status"></StatusBadge>
+              <span v-bind:class="{ 'detail-header__sla--overdue': slaSignal.overdue }">
                 {{ slaSignal.label }}
               </span>
             </div>
           </div>
           <p>
             {{ currentInquiry.customer.nickname }} 님이
-            <time :datetime="currentInquiry.createdAt">
+            <time v-bind:datetime="currentInquiry.createdAt">
               {{ formatDateTime(currentInquiry.createdAt) }}
             </time>
             접수
@@ -219,26 +278,31 @@ onUnmounted(() => {
         <div
           v-if="feedback"
           class="feedback-message"
-          :class="`feedback-message--${feedback.type}`"
-          :role="feedback.type === 'error' ? 'alert' : 'status'"
+          v-bind:class="`feedback-message--${feedback.type}`"
+          v-bind:role="getFeedbackRole(feedback)"
         >
-          <span aria-hidden="true">{{ feedback.type === 'success' ? '✓' : '!' }}</span>
+          <span aria-hidden="true">{{ getFeedbackIcon(feedback) }}</span>
           <p>{{ feedback.message }}</p>
-          <button type="button" aria-label="알림 닫기" @click="feedback = null">×</button>
+          <button type="button" aria-label="알림 닫기" v-on:click="feedback = null">
+            ×
+          </button>
         </div>
       </div>
 
       <div class="detail-layout">
-        <InquiryOverview class="detail-overview" :inquiry="currentInquiry" />
+        <InquiryOverview
+          class="detail-overview"
+          v-bind:inquiry="currentInquiry"
+        ></InquiryOverview>
 
         <aside class="detail-aside" aria-label="문의 처리와 고객 정보">
           <InquiryManagementPanel
-            :inquiry="currentInquiry"
-            :agents="agents"
-            :is-saving="isUpdatingInquiry"
-            :disabled="isAddingNote"
-            @save="saveInquiryChanges"
-          />
+            v-bind:inquiry="currentInquiry"
+            v-bind:agents="agents"
+            v-bind:is-saving="isUpdatingInquiry"
+            v-bind:disabled="isAddingNote"
+            v-on:save="saveInquiryChanges"
+          ></InquiryManagementPanel>
 
           <section class="customer-card" aria-labelledby="customer-card-title">
             <div class="customer-card__heading">
@@ -253,7 +317,7 @@ onUnmounted(() => {
               <div>
                 <dt>이메일</dt>
                 <dd>
-                  <a :href="`mailto:${currentInquiry.customer.email}`">
+                  <a v-bind:href="`mailto:${currentInquiry.customer.email}`">
                     {{ currentInquiry.customer.email }}
                   </a>
                 </dd>
@@ -275,7 +339,7 @@ onUnmounted(() => {
               <div>
                 <dt>현재 담당자</dt>
                 <dd>
-                  {{ currentInquiry.assignee?.name ?? '미배정' }}
+                  {{ getAssigneeName(currentInquiry) }}
                   <span v-if="currentInquiry.assignee">
                     {{ currentInquiry.assignee.team }}
                   </span>
@@ -287,15 +351,18 @@ onUnmounted(() => {
 
         <InquiryNotes
           class="detail-notes"
-          :notes="currentInquiry.notes"
-          :model-value="noteInput"
-          :error-message="noteErrorMessage"
-          :is-saving="isAddingNote"
-          :disabled="isUpdatingInquiry"
-          @update:model-value="updateNoteInput"
-          @submit="submitNote"
-        />
-        <InquiryTimeline class="detail-timeline" :history="currentInquiry.history" />
+          v-bind:notes="currentInquiry.notes"
+          v-bind:model-value="noteInput"
+          v-bind:error-message="noteErrorMessage"
+          v-bind:is-saving="isAddingNote"
+          v-bind:disabled="isUpdatingInquiry"
+          v-on:update:model-value="updateNoteInput"
+          v-on:submit="submitNote"
+        ></InquiryNotes>
+        <InquiryTimeline
+          class="detail-timeline"
+          v-bind:history="currentInquiry.history"
+        ></InquiryTimeline>
       </div>
     </template>
   </div>

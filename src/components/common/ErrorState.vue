@@ -23,7 +23,7 @@ defineEmits<{
       <h2>{{ title }}</h2>
       <p>{{ message }}</p>
     </div>
-    <button type="button" @click="$emit('retry')">다시 시도</button>
+    <button type="button" v-on:click="$emit('retry')">다시 시도</button>
   </section>
 </template>
 

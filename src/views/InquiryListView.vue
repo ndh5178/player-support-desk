@@ -28,9 +28,12 @@ const SEARCH_DEBOUNCE_MS = 350
 const route = useRoute()
 const router = useRouter()
 const inquiryStore = useInquiryStore()
-// storeToRefs를 사용하면 Store의 상태를 구조 분해해도 Vue 반응성이 유지된다.
-const { inquiries, pagination, isListLoading, listErrorMessage } =
-  storeToRefs(inquiryStore)
+// storeToRefs를 사용하면 Store의 각 상태를 별도 변수로 꺼내도 Vue 반응성이 유지된다.
+const inquiryStoreRefs = storeToRefs(inquiryStore)
+const inquiries = inquiryStoreRefs.inquiries
+const pagination = inquiryStoreRefs.pagination
+const isListLoading = inquiryStoreRefs.isListLoading
+const listErrorMessage = inquiryStoreRefs.listErrorMessage
 
 const normalizedQuery = computed(() => parseInquiryListQuery(route.query))
 // 검색창 입력은 즉시 보이게 두고, 실제 URL과 API 요청은 Debounce 이후 변경한다.
@@ -73,10 +76,14 @@ function replaceQuery(
   options: { resetPage?: boolean } = {},
 ): void {
   // URL Query를 필터 상태의 단일 기준으로 사용하며 필터 변경 시 기본적으로 1페이지로 돌아간다.
-  const nextQuery: NormalizedInquiryListQuery = {
-    ...normalizedQuery.value,
-    ...patch,
-    ...(options.resetPage === false ? {} : { page: 1 }),
+  const nextQuery: NormalizedInquiryListQuery = Object.assign(
+    {},
+    normalizedQuery.value,
+    patch,
+  )
+
+  if (options.resetPage !== false) {
+    nextQuery.page = 1
   }
 
   void router.replace({
@@ -110,7 +117,7 @@ function handleSortUpdate(value: InquirySort): void {
 }
 
 function handlePageChange(page: number): void {
-  replaceQuery({ page }, { resetPage: false })
+  replaceQuery({ page: page }, { resetPage: false })
 }
 
 function resetFilters(): void {
@@ -170,25 +177,25 @@ onUnmounted(() => {
     </header>
 
     <InquiryFilterBar
-      :search="searchInput"
-      :status="normalizedQuery.status"
-      :priority="normalizedQuery.priority"
-      :category="normalizedQuery.category"
-      :sort="normalizedQuery.sort"
-      :active-filter-count="activeFilterCount"
-      @update:search="handleSearchUpdate"
-      @update:status="handleStatusUpdate"
-      @update:priority="handlePriorityUpdate"
-      @update:category="handleCategoryUpdate"
-      @update:sort="handleSortUpdate"
-      @reset="resetFilters"
-    />
+      v-bind:search="searchInput"
+      v-bind:status="normalizedQuery.status"
+      v-bind:priority="normalizedQuery.priority"
+      v-bind:category="normalizedQuery.category"
+      v-bind:sort="normalizedQuery.sort"
+      v-bind:active-filter-count="activeFilterCount"
+      v-on:update:search="handleSearchUpdate"
+      v-on:update:status="handleStatusUpdate"
+      v-on:update:priority="handlePriorityUpdate"
+      v-on:update:category="handleCategoryUpdate"
+      v-on:update:sort="handleSortUpdate"
+      v-on:reset="resetFilters"
+    ></InquiryFilterBar>
 
     <section
       id="inquiry-list-results"
       class="inquiry-results"
       aria-labelledby="inquiry-results-title"
-      :aria-busy="isListLoading"
+      v-bind:aria-busy="isListLoading"
     >
       <div class="inquiry-results__heading">
         <h2 id="inquiry-results-title">전체 케이스</h2>
@@ -198,14 +205,17 @@ onUnmounted(() => {
       </div>
 
       <!-- 같은 결과 영역에서 로딩, 오류, 빈 목록, 정상 목록 중 하나만 표시한다. -->
-      <InquiryListSkeleton v-if="isListLoading" data-testid="inquiry-list-skeleton" />
+      <InquiryListSkeleton
+        v-if="isListLoading"
+        data-testid="inquiry-list-skeleton"
+      ></InquiryListSkeleton>
 
       <ErrorState
         v-else-if="listErrorMessage"
         title="문의 목록을 불러오지 못했습니다"
-        :message="listErrorMessage"
-        @retry="fetchCurrentList"
-      />
+        v-bind:message="listErrorMessage"
+        v-on:retry="fetchCurrentList"
+      ></ErrorState>
 
       <div v-else-if="inquiries.length === 0" class="empty-state">
         <span aria-hidden="true">
@@ -218,7 +228,7 @@ onUnmounted(() => {
         <button
           v-if="activeFilterCount > 0 || normalizedQuery.sort !== 'newest'"
           type="button"
-          @click="resetFilters"
+          v-on:click="resetFilters"
         >
           필터 초기화
         </button>
@@ -226,9 +236,12 @@ onUnmounted(() => {
 
       <template v-else>
         <!-- CSS 경계에 따라 데스크톱은 표, 작은 화면은 카드 목록을 보여 준다. -->
-        <InquiryTable :inquiries="inquiries" />
-        <InquiryCardList :inquiries="inquiries" />
-        <PaginationControls :pagination="pagination" @page-change="handlePageChange" />
+        <InquiryTable v-bind:inquiries="inquiries"></InquiryTable>
+        <InquiryCardList v-bind:inquiries="inquiries"></InquiryCardList>
+        <PaginationControls
+          v-bind:pagination="pagination"
+          v-on:page-change="handlePageChange"
+        ></PaginationControls>
       </template>
     </section>
   </div>

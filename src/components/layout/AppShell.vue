@@ -9,8 +9,8 @@ import Navigation from './Navigation.vue'
     <a class="skip-link" href="#main-content">본문 바로가기</a>
 
     <aside class="app-shell__sidebar" aria-label="앱 내비게이션">
-      <AppHeader />
-      <Navigation />
+      <AppHeader></AppHeader>
+      <Navigation></Navigation>
 
       <div class="app-shell__status" aria-label="지원 운영 환경">
         <p><span aria-hidden="true"></span> 데모 환경</p>
@@ -22,7 +22,7 @@ import Navigation from './Navigation.vue'
     <main id="main-content" class="app-shell__main" tabindex="-1">
       <div class="app-shell__content">
         <!-- App.vue가 전달한 현재 라우트 화면을 공통 레이아웃 안에 삽입한다. -->
-        <slot />
+        <slot></slot>
       </div>
     </main>
   </div>

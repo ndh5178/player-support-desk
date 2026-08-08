@@ -13,7 +13,7 @@ const label = computed(() => getPriorityLabel(props.priority))
 </script>
 
 <template>
-  <span class="priority-badge" :class="`priority-badge--${priority.toLowerCase()}`">
+  <span class="priority-badge" v-bind:class="`priority-badge--${priority.toLowerCase()}`">
     <span class="priority-badge__marker" aria-hidden="true"></span>
     {{ label }}
   </span>

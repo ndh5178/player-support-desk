@@ -70,16 +70,22 @@ describe('AppShell 접근성', () => {
     const focusPromise = focusPageHeading()
 
     window.setTimeout(() => {
-      document
-        .querySelector('.app-shell__content')
-        ?.insertAdjacentHTML('afterbegin', '<h1>지연된 상세 화면</h1>')
+      const contentElement = document.querySelector('.app-shell__content')
+
+      if (contentElement !== null) {
+        contentElement.insertAdjacentHTML('afterbegin', '<h1>지연된 상세 화면</h1>')
+      }
     }, 40)
 
     await focusPromise
 
     const heading = document.querySelector<HTMLHeadingElement>('#main-content h1')
 
-    expect(heading?.tabIndex).toBe(-1)
+    if (heading === null) {
+      throw new Error('본문 제목을 찾을 수 없습니다.')
+    }
+
+    expect(heading.tabIndex).toBe(-1)
     expect(document.activeElement).toBe(heading)
   })
 })
