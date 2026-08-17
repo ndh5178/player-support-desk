@@ -50,6 +50,7 @@
 - 적용 파일: `src/views/InquiryListView.vue`, `src/views/InquiryDetailView.vue`, `src/components/inquiry/InquiryManagementPanel.vue`
 - 적용 사례:
   - URL Query 변경을 관찰해 목록을 다시 조회하고 검색 입력값을 복원했습니다.
+  - Query를 안전한 값과 정석 URL로 변환한 뒤 현재 주소와 비교하고, 주소가 다르면 교체 후 다음 감지에서 조회해 중복 API 요청을 막았습니다.
   - 검색 입력은 350ms 타이머가 지난 뒤 URL Query를 갱신하고, Query 변경이 실제 조회를 시작하게 했습니다.
   - 상세 라우트 ID 변경을 관찰해 새 문의를 조회하고, 저장 성공으로 확정 원본이 바뀌면 처리 폼의 선택값을 동기화했습니다.
 - React 비교:
@@ -105,6 +106,7 @@
   - 실제 경로 이동 후 `main`의 첫 `h1`으로 포커스를 옮겨 새 화면의 시작점을 전달
   - 최초 직접 접속과 URL Query 변경에서는 기존 포커스를 유지하고, Lazy 화면은 제목 렌더링을 제한적으로 재확인
   - 문의 목록 필터를 URL Query와 동기화하고 새로고침·앞뒤 이동 시 조건을 복원
+  - 잘못된 값과 기본값을 URL에서 제거하고 중복 Query는 첫 번째 값만 남겨 공유 가능한 하나의 주소로 정규화
 - React 비교:
   - 라우트 구성 방식은 React Router와 유사하지만 Vue 컴포넌트와 Composition API용 Router 함수를 사용합니다.
 
