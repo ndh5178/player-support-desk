@@ -2,9 +2,13 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { http, HttpResponse } from 'msw'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { resetInquiryStorage } from '@/mocks/storage'
+import {
+  getStoredInquiries,
+  resetInquiryStorage,
+  saveStoredInquiries,
+} from '@/mocks/storage'
 import InquiryListView from '@/views/InquiryListView.vue'
 import { server } from '../mocks/server'
 
@@ -46,6 +50,10 @@ describe('InquiryListView', () => {
   beforeEach(() => {
     window.localStorage.clear()
     resetInquiryStorage(new Date())
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('최초 로딩 후 문의 10건과 페이지 정보를 표시한다', async () => {
@@ -120,6 +128,94 @@ describe('InquiryListView', () => {
     expect(wrapper.findAll('tbody tr').every((row) => row.text().includes('긴급'))).toBe(
       true,
     )
+  })
+
+  it('잘못된 페이지를 기본값 주소로 교정한 뒤 한 번만 조회한다', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const mountedList = await mountInquiryList('/inquiries?page=-1')
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
+
+    await waitForList()
+
+    const inquiryRequests = fetchSpy.mock.calls.filter((call) => {
+      const input = call[0]
+      const url = input instanceof Request ? new URL(input.url) : new URL(String(input))
+
+      return url.pathname === '/api/inquiries'
+    })
+
+    expect(router.currentRoute.value.fullPath).toBe('/inquiries')
+    expect(inquiryRequests).toHaveLength(1)
+    expect(wrapper.findAll('tbody tr')).toHaveLength(10)
+  })
+
+  it('지원하지 않는 정렬을 URL에서 제거하고 최신순 목록을 요청한다', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const mountedList = await mountInquiryList('/inquiries?sort=hello')
+    const router = mountedList.router
+
+    await waitForList()
+
+    const inquiryRequests = fetchSpy.mock.calls.filter((call) => {
+      const input = call[0]
+      const url = input instanceof Request ? new URL(input.url) : new URL(String(input))
+
+      return url.pathname === '/api/inquiries'
+    })
+    const requestInput = inquiryRequests[0]?.[0]
+
+    expect(requestInput).toBeDefined()
+
+    let requestUrl: URL
+
+    if (requestInput instanceof Request) {
+      requestUrl = new URL(requestInput.url)
+    } else {
+      requestUrl = new URL(String(requestInput))
+    }
+
+    expect(router.currentRoute.value.fullPath).toBe('/inquiries')
+    expect(inquiryRequests).toHaveLength(1)
+    expect(requestUrl.searchParams.get('sort')).toBe('newest')
+  })
+
+  it('중복된 상태 Query의 첫 번째 값만 남긴다', async () => {
+    const mountedList = await mountInquiryList('/inquiries?status=NEW&status=RESOLVED')
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
+
+    await waitForList()
+
+    expect(router.currentRoute.value.fullPath).toBe('/inquiries?status=NEW')
+    expect(wrapper.findAll('tbody tr').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('tbody tr').every((row) => row.text().includes('신규'))).toBe(
+      true,
+    )
+  })
+
+  it('유효한 상태와 페이지 Query를 불필요하게 교정하지 않는다', async () => {
+    const storedInquiries = getStoredInquiries()
+
+    for (let index = 0; index < 12; index += 1) {
+      const inquiry = storedInquiries[index]
+
+      if (inquiry !== undefined) {
+        inquiry.status = 'NEW'
+      }
+    }
+
+    saveStoredInquiries(storedInquiries)
+
+    const mountedList = await mountInquiryList('/inquiries?status=NEW&page=2')
+    const wrapper = mountedList.wrapper
+    const router = mountedList.router
+
+    await waitForList()
+
+    expect(router.currentRoute.value.fullPath).toBe('/inquiries?status=NEW&page=2')
+    expect(wrapper.get('[aria-current="page"]').text()).toBe('2')
+    expect(wrapper.findAll('tbody tr').length).toBeGreaterThan(0)
   })
 
   it('페이지 이동을 URL에 기록한다', async () => {

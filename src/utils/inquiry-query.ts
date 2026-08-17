@@ -158,3 +158,51 @@ export function toRouteInquiryListQuery(
 
   return routeQuery
 }
+
+export function areInquiryListQueriesEqual(
+  currentQuery: LocationQuery,
+  canonicalQuery: LocationQueryRaw,
+): boolean {
+  // 알 수 없는 키와 중복 값을 포함한 주소도 감지할 수 있도록 키와 값을 모두 비교한다.
+  const currentKeys = Object.keys(currentQuery).sort()
+  const canonicalKeys = Object.keys(canonicalQuery)
+    .filter((key) => canonicalQuery[key] !== undefined)
+    .sort()
+
+  if (currentKeys.length !== canonicalKeys.length) {
+    return false
+  }
+
+  for (let index = 0; index < currentKeys.length; index += 1) {
+    const currentKey = currentKeys[index]
+    const canonicalKey = canonicalKeys[index]
+
+    if (currentKey === undefined || canonicalKey === undefined) {
+      return false
+    }
+
+    if (currentKey !== canonicalKey) {
+      return false
+    }
+
+    const currentValue = currentQuery[currentKey]
+    const canonicalValue = canonicalQuery[canonicalKey]
+
+    if (
+      currentValue === null ||
+      currentValue === undefined ||
+      canonicalValue === null ||
+      canonicalValue === undefined ||
+      Array.isArray(currentValue) ||
+      Array.isArray(canonicalValue)
+    ) {
+      return false
+    }
+
+    if (currentValue !== String(canonicalValue)) {
+      return false
+    }
+  }
+
+  return true
+}

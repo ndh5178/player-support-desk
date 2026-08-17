@@ -17,6 +17,7 @@ import type {
   InquiryStatus,
 } from '../types/inquiry'
 import {
+  areInquiryListQueriesEqual,
   parseInquiryListQuery,
   toApiInquiryListQuery,
   toRouteInquiryListQuery,
@@ -126,9 +127,9 @@ function resetFilters(): void {
   void router.replace({ query: {} })
 }
 
-async function fetchCurrentList(): Promise<void> {
-  const query = normalizedQuery.value
-
+async function fetchCurrentList(
+  query: NormalizedInquiryListQuery = normalizedQuery.value,
+): Promise<void> {
   await inquiryStore.fetchInquiryList(toApiInquiryListQuery(query))
 
   if (
@@ -143,16 +144,26 @@ async function fetchCurrentList(): Promise<void> {
 
 watch(
   () => route.query,
-  () => {
+  (currentRouteQuery) => {
+    // 외부에서 들어온 Query를 먼저 검증하고 기본값을 생략한 하나의 정석 URL로 통일한다.
+    const safeQuery = parseInquiryListQuery(currentRouteQuery)
+    const canonicalRouteQuery = toRouteInquiryListQuery(safeQuery)
+
+    if (!areInquiryListQueriesEqual(currentRouteQuery, canonicalRouteQuery)) {
+      // 교정된 URL이 다시 감지될 때 조회해 잘못된 조건과 정상 조건의 중복 요청을 막는다.
+      void router.replace({ query: canonicalRouteQuery })
+      return
+    }
+
     // 새로고침과 브라우저 앞·뒤 이동도 같은 필터와 목록을 복원하도록 URL 변화를 관찰한다.
-    const routeSearch = normalizedQuery.value.search
+    const routeSearch = safeQuery.search
 
     if (searchInput.value !== routeSearch) {
       clearTimeout(searchTimer)
       searchInput.value = routeSearch
     }
 
-    void fetchCurrentList()
+    void fetchCurrentList(safeQuery)
   },
   { immediate: true },
 )
