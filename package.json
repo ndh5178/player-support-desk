@@ -7,7 +7,9 @@
     "node": ">=20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode mock",
+    "dev:mock": "vite --mode mock",
+    "dev:api": "vite --mode api",
     "build": "npm run type-check && npm run build-only",
     "build-only": "vite build",
     "format": "prettier --write .",

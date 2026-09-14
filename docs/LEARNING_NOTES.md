@@ -167,7 +167,26 @@
   - 개별 컴포넌트 테스트에서 이미 확인한 입력 검증과 렌더링을 반복하지 않고, 화면·Store·API 사이 계약이 끊길 수 있는 흐름만 추가했습니다.
   - 브라우저에서는 실제 새로고침과 390px 가로 넘침을 별도로 확인해 jsdom이 검증하지 못하는 동작을 보완했습니다.
 
-## 12. 구현 후 답할 수 있어야 하는 질문
+## 12. Mock 모드와 실제 API 모드의 요청 흐름
+
+- 상태: 설정 완료, 실제 서버 연결 수동 검증 대기
+- 적용 파일: `.env.mock`, `.env.api`, `package.json`, `vite.config.ts`, `src/main.ts`, `src/services/api.ts`
+- Mock 모드 흐름:
+  1. `npm run dev`가 Vite를 `mock` 모드로 실행합니다.
+  2. `.env.mock`의 `VITE_ENABLE_MOCKS=true`를 읽습니다.
+  3. `src/main.ts`가 MSW Worker를 시작한 뒤 Vue 앱을 마운트합니다.
+  4. `fetch('/api/inquiries')`를 MSW Handler가 가로채 `localStorage` 기반 응답을 반환합니다.
+- 실제 API 모드 흐름:
+  1. `npm run dev:api`가 Vite를 `api` 모드로 실행합니다.
+  2. `.env.api`의 `VITE_ENABLE_MOCKS=false`를 읽어 MSW Worker를 시작하지 않습니다.
+  3. 기존 View와 Pinia가 `src/services/api.ts`를 통해 `/api/inquiries`를 요청합니다.
+  4. Vite 프록시가 요청을 `http://127.0.0.1:8080/api/inquiries`로 전달합니다.
+  5. Spring Boot가 PostgreSQL을 조회해 응답하면 같은 Service와 Pinia 흐름을 거쳐 화면에 표시됩니다.
+- 학습:
+  - 프론트엔드 코드는 어느 서버가 응답하는지 알 필요 없이 같은 URL과 응답 형태를 사용합니다.
+  - Vite 프록시는 개발 중 브라우저와 API 서버의 출처 차이를 대신 처리하며, 실제 배포 서버 자체를 대신하지는 않습니다.
+
+## 13. 구현 후 답할 수 있어야 하는 질문
 
 - 왜 Vue의 모든 상태를 Pinia에 넣지 않았나요?
 - `computed`와 메서드의 차이는 무엇인가요?
@@ -182,7 +201,7 @@
 - 컴포넌트 테스트와 화면을 가로지르는 통합 테스트의 책임을 어떻게 나눴나요?
 - 새 Pinia와 Router로 앱을 다시 마운트한 테스트가 무엇을 검증하나요?
 
-## 13. 구현 회고
+## 14. 구현 회고
 
 - React에서 익힌 컴포넌트 분리와 단방향 데이터 흐름은 Vue에서도 그대로 활용할 수 있었습니다. 다만 Vue에서는 Props와 Emit으로 입력과 출력을 구분하고, Template Directive로 화면 조건을 표현하는 방식이 더 명시적으로 느껴졌습니다.
 - JSX는 JavaScript 표현식 안에서 UI를 구성하지만 Vue SFC는 Template·로직·스타일의 영역이 구분됩니다. 작은 화면 상태는 Template에서 읽기 쉬웠고, 복잡한 파생 로직은 `computed`로 스크립트에 이름을 붙이는 편이 이해하기 쉬웠습니다.
@@ -190,7 +209,7 @@
 - 초기 설계보다 URL Query와 요청 경합 처리가 중요했습니다. 필터 값을 Pinia에 중복 저장하지 않고 URL을 단일 기준으로 정리하면서 새로고침과 앞·뒤 이동 동작이 단순해졌습니다.
 - 다시 구현한다면 실제 백엔드 계약과 브라우저 E2E 테스트를 추가하고, 배포 환경에서 SPA fallback과 Mock 사용 여부를 분리해 검증하겠습니다.
 
-## 14. 코드를 읽기 위한 주석 기준
+## 15. 코드를 읽기 위한 주석 기준
 
 - 상태: 적용
 - 적용 범위: `src`의 진입점, Router, View, Pinia Store, API, MSW와 주요 UI 컴포넌트

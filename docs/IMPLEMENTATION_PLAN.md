@@ -146,3 +146,12 @@
 - 기존 이력서에 프로젝트 링크와 설명 추가
 - 면접용 Vue·React 비교 및 구현 설명 정리
 - 별도 브랜치에서 Merge Conflict 실습
+
+## 9. 실제 조회 API 연결
+
+- [x] Mock 모드와 API 모드 실행 명령 분리
+- [x] API 모드에서 브라우저 MSW 비활성화
+- [x] `/api` 요청을 로컬 Spring Boot 서버로 전달하는 Vite 프록시 구성
+- [x] 문의 목록·상세와 담당자 조회에 기존 Service·Pinia 계약 유지
+- [x] 실행 방법과 아직 연결하지 않은 기능 문서화
+- [ ] Spring Boot와 PostgreSQL을 실행한 상태에서 목록·상세 수동 확인
