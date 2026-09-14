@@ -57,8 +57,8 @@
 | 언어 | TypeScript | 문의 도메인과 API 요청·응답 계약을 명시하고 외부 입력을 런타임에도 검증 |
 | 상태 관리 | Pinia | 목록과 상세가 공유하는 문의 데이터와 비동기 상태 관리 |
 | 라우팅 | Vue Router | 화면 전환, Lazy Loading, 문서 제목과 경로 이동 포커스 관리 |
-| API | Fetch API, MSW | 실제 REST 호출 구조를 유지하면서 독립적으로 조회·변경·오류 흐름 구현 |
-| 영속화 | localStorage | 변경 결과를 새로고침 이후에도 유지하고 손상 데이터 복구 경로 제공 |
+| API | Fetch API, MSW, Spring Boot 연동 모드 | 같은 REST 경로를 Mock 또는 별도 백엔드로 전환해 사용 |
+| 영속화 | localStorage 또는 PostgreSQL | 실행 모드에 따라 가상 데이터나 실제 조회 데이터를 사용 |
 | 스타일 | CSS Token, Grid, Flexbox | JavaScript `resize` 없이 명확한 반응형 경계 구현 |
 | 테스트 | Vitest, Vue Test Utils, jsdom, MSW | 컴포넌트 계약, Store·API와 화면 간 핵심 흐름 검증 |
 
@@ -69,8 +69,8 @@ View
 ├─ UI Component         화면 표시와 사용자 입력
 ├─ Pinia Store          여러 화면이 공유하는 문의 데이터와 요청 상태
 └─ API Service          fetch 요청과 ApiError 변환
-      └─ MSW Handler    REST 조회·변경·검증·오류 응답
-            └─ localStorage
+      ├─ Mock 모드      MSW Handler → localStorage
+      └─ API 모드       Vite Proxy → Spring Boot → PostgreSQL
 ```
 
 상태는 필요한 최소 범위에 둡니다.
@@ -82,7 +82,7 @@ View
 
 목록 조건을 URL에 두어 새로고침, 링크 공유와 브라우저 앞·뒤 이동에서도 같은 결과를 복원합니다. 새 조회가 시작되면 이전 요청을 취소하고 요청 식별자를 비교해 늦은 응답이 최신 목록을 덮지 않게 했습니다.
 
-## Mock REST API
+## REST API
 
 | Method | Endpoint | 역할 |
 | --- | --- | --- |
@@ -93,7 +93,7 @@ View
 | `PATCH` | `/api/inquiries/:id` | 상태와 담당자 변경 |
 | `POST` | `/api/inquiries/:id/notes` | 운영 메모 추가 |
 
-애플리케이션은 MSW 구현을 직접 참조하지 않고 `services/api.ts`의 `fetch` 함수만 사용합니다. 따라서 실제 백엔드로 교체할 때 View와 Store의 호출 계약을 유지할 수 있습니다.
+애플리케이션은 MSW나 Spring Boot를 직접 참조하지 않고 `services/api.ts`의 `fetch` 함수만 사용합니다. Mock 모드에서는 MSW가 요청을 가로채고, API 모드에서는 Vite 개발 프록시가 같은 `/api` 요청을 Spring Boot로 전달합니다.
 
 ## 반응형과 접근성
 
@@ -160,7 +160,15 @@ npm install
 npm run dev
 ```
 
-기본 개발 주소는 Vite가 출력하는 로컬 URL입니다. 브라우저의 `player-support-desk:inquiries:v2` 저장 값에 변경된 가상 문의가 유지됩니다.
+`npm run dev`와 `npm run dev:mock`은 MSW 모드로 실행합니다. 기본 개발 주소는 Vite가 출력하는 로컬 URL이며, 브라우저의 `player-support-desk:inquiries:v2` 저장 값에 변경된 가상 문의가 유지됩니다.
+
+별도 `player-support-desk-api` 프로젝트를 먼저 `8080` 포트에서 실행한 뒤 다음 명령을 사용하면 실제 조회 API에 연결됩니다.
+
+```bash
+npm run dev:api
+```
+
+API 모드는 `.env.api`의 `VITE_ENABLE_MOCKS=false`를 읽어 MSW를 시작하지 않습니다. 브라우저가 보낸 `/api` 요청은 Vite 프록시를 거쳐 `.env.api`의 `VITE_API_PROXY_TARGET`으로 전달되므로 로컬 개발 중 별도 CORS 설정이 필요하지 않습니다.
 
 ## 프로젝트 구조
 
@@ -185,8 +193,9 @@ tests/
 
 ## 제한 사항과 다음 단계
 
-- 인증·권한, 실제 DB와 운영 백엔드는 범위에 포함하지 않았습니다.
-- 데이터는 브라우저별 `localStorage`에 저장되어 다른 사용자나 기기와 공유되지 않습니다.
+- 인증·권한과 운영 환경 수준의 백엔드는 범위에 포함하지 않았습니다.
+- Mock 모드는 브라우저별 `localStorage`를 사용하므로 다른 사용자나 기기와 데이터가 공유되지 않습니다.
+- API 모드는 현재 문의 목록·상세와 담당자 조회만 지원합니다. 대시보드 집계, 상태·담당자 변경과 운영 메모 등록은 백엔드 구현 전까지 Mock 모드에서만 동작합니다.
 - 실시간 채팅, 파일 첨부와 이미지 업로드는 구현하지 않았습니다.
 - 현재 README에는 검증되지 않은 배포 URL을 제공하지 않습니다.
 - 다음 단계에서는 정적 호스팅 배포와 브라우저 E2E 테스트를 추가할 수 있습니다.

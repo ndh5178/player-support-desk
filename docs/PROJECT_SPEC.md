@@ -31,7 +31,7 @@
 ## 3. 범위 밖의 작업
 
 - 실제 인증과 권한 관리
-- 실제 데이터베이스와 운영 백엔드
+- 인증·배포를 포함한 운영 환경 수준의 백엔드
 - 실시간 채팅과 WebSocket
 - 파일 첨부와 이미지 업로드
 - 실제 회사·게임 데이터 또는 브랜드 자산 사용
@@ -143,7 +143,11 @@
 - `page`
 - `limit`
 
-API는 MSW로 구현하지만 애플리케이션에서는 실제 REST API와 동일하게 `fetch`로 호출합니다. 변경된 가상 데이터는 `localStorage`에 저장해 새로고침 후에도 유지합니다.
+애플리케이션은 동일한 `fetch` 호출 계약을 유지하면서 실행 모드에 따라 MSW 또는 별도 Spring Boot API를 사용합니다. Mock 모드의 변경 데이터는 `localStorage`에 저장하며, API 모드의 조회 데이터는 PostgreSQL에서 가져옵니다.
+
+- Mock 모드: 전체 조회·변경 기능을 MSW가 처리합니다.
+- API 모드: 현재 문의 목록·상세와 담당자 조회를 Spring Boot가 처리합니다.
+- API 모드의 대시보드 집계, 상태·담당자 변경과 운영 메모 등록은 다음 백엔드 단계에서 연결합니다.
 
 - 목록은 `{ data, pagination }`, 담당자는 `{ data }` 형태로 반환합니다.
 - 실패 응답은 `{ error: { code, message, details? } }` 형태로 통일합니다.
@@ -155,7 +159,8 @@ API는 MSW로 구현하지만 애플리케이션에서는 실제 REST API와 동
 - Pinia: 문의 목록, 상세 데이터, 조회 상태, 변경 결과 등 화면 간 공유 상태
 - URL Query Parameter: 목록 검색, 필터, 정렬, 페이지
 - 컴포넌트 로컬 상태: 메모 입력, 필터 패널 펼침 여부 등
-- MSW와 `localStorage`: 가상 API 데이터의 원본과 영속화
+- MSW와 `localStorage`: Mock 모드의 가상 API 데이터와 영속화
+- Spring Boot와 PostgreSQL: API 모드의 서버 조회 데이터와 영속화
 
 ## 9. 반응형 요구사항
 
