@@ -31,6 +31,17 @@ export interface AgentListResponse {
   data: Agent[]
 }
 
+export interface AuthSessionResponse {
+  authenticated: boolean
+  agent?: Agent
+  csrfToken: string
+}
+
+export interface LoginRequest {
+  username: string
+  password: string
+}
+
 export interface ApiErrorBody {
   error: {
     code: string

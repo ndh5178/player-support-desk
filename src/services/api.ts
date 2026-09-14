@@ -2,7 +2,9 @@ import {
   ApiError,
   type AgentListResponse,
   type ApiErrorBody,
+  type AuthSessionResponse,
   type DashboardData,
+  type LoginRequest,
   type PaginatedResponse,
 } from '../types/api'
 import type {
@@ -14,9 +16,19 @@ import type {
 } from '../types/inquiry'
 
 const API_ROOT = '/api'
+let csrfToken = ''
+let unauthorizedHandler: (() => void) | null = null
 
 interface RequestOptions extends RequestInit {
   signal?: AbortSignal
+}
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  unauthorizedHandler = handler
+}
+
+function saveCsrfToken(token: string): void {
+  csrfToken = token
 }
 
 // 브라우저와 jsdom 테스트 모두에서 같은 상대 API 경로를 사용할 수 있게 절대 URL로 만든다.
@@ -38,6 +50,11 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
     headers.set('Content-Type', 'application/json')
   }
 
+  const method = (options.method ?? 'GET').toUpperCase()
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method) && csrfToken) {
+    headers.set('X-XSRF-TOKEN', csrfToken)
+  }
+
   const callerHeaders = new Headers(options.headers)
   callerHeaders.forEach((value, key) => {
     headers.set(key, value)
@@ -45,6 +62,7 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
 
   const fetchOptions: RequestOptions = Object.assign({}, options)
   fetchOptions.headers = headers
+  fetchOptions.credentials = 'same-origin'
 
   const response = await fetch(createApiUrl(path), fetchOptions)
 
@@ -58,6 +76,14 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
   }
 
   if (!response.ok) {
+    if (
+      response.status === 401 &&
+      path !== '/auth/login' &&
+      path !== '/auth/session'
+    ) {
+      unauthorizedHandler?.()
+    }
+
     const apiError = body as Partial<ApiErrorBody> | null
     let error: ApiErrorBody['error'] | undefined
 
@@ -83,6 +109,35 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
   }
 
   return body as T
+}
+
+export async function getAuthSession(signal?: AbortSignal): Promise<AuthSessionResponse> {
+  const response = await requestJson<AuthSessionResponse>('/auth/session', {
+    signal: signal,
+  })
+  saveCsrfToken(response.csrfToken)
+  return response
+}
+
+export async function login(
+  payload: LoginRequest,
+  signal?: AbortSignal,
+): Promise<AuthSessionResponse> {
+  const response = await requestJson<AuthSessionResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    signal: signal,
+  })
+  saveCsrfToken(response.csrfToken)
+  return response
+}
+
+export async function logout(signal?: AbortSignal): Promise<void> {
+  await requestJson<void>('/auth/logout', {
+    method: 'POST',
+    signal: signal,
+  })
+  saveCsrfToken('')
 }
 
 export function getDashboard(signal?: AbortSignal): Promise<DashboardData> {

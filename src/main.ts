@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
 import './assets/styles/reset.css'
 import './assets/styles/tokens.css'
 import './assets/styles/global.css'
@@ -29,9 +30,11 @@ async function bootstrap() {
   await enableMocking()
 
   const app = createApp(App)
+  const pinia = createPinia()
 
   // Pinia와 Router를 앱 전체에서 사용할 수 있게 등록한 뒤 #app 요소에 Vue를 연결한다.
-  app.use(createPinia())
+  app.use(pinia)
+  await useAuthStore(pinia).initializeSession()
   app.use(router)
   app.mount('#app')
 }
