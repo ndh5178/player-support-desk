@@ -1,6 +1,20 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+import { useAuthStore } from '@/stores/auth'
+
 import AppHeader from './AppHeader.vue'
 import Navigation from './Navigation.vue'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+async function handleLogout(): Promise<void> {
+  const succeeded = await authStore.logout()
+  if (succeeded) {
+    await router.replace({ name: 'login' })
+  }
+}
 </script>
 
 <template>
@@ -11,6 +25,27 @@ import Navigation from './Navigation.vue'
     <aside class="app-shell__sidebar" aria-label="앱 내비게이션">
       <AppHeader></AppHeader>
       <Navigation></Navigation>
+
+      <div class="app-shell__session">
+        <span class="app-shell__session-mark" aria-hidden="true"></span>
+        <span class="app-shell__session-agent">
+          <strong>{{ authStore.currentAgent?.name }}</strong>
+          <small>{{ authStore.currentAgent?.team }}</small>
+        </span>
+        <button
+          v-if="!authStore.usesMockApi"
+          type="button"
+          v-bind:disabled="authStore.isSubmitting"
+          v-on:click="handleLogout"
+        >
+          {{ authStore.isSubmitting ? '처리 중' : '로그아웃' }}
+        </button>
+        <span v-else class="app-shell__session-mode">DEMO</span>
+      </div>
+
+      <p v-if="authStore.errorMessage" class="app-shell__session-error" role="alert">
+        {{ authStore.errorMessage }}
+      </p>
 
       <div class="app-shell__status" aria-label="지원 운영 환경">
         <p><span aria-hidden="true"></span> 데모 환경</p>
@@ -96,6 +131,83 @@ import Navigation from './Navigation.vue'
   background: rgb(0 0 0 / 16%);
 }
 
+.app-shell__session {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  color: #fff8e6;
+}
+
+.app-shell__session-mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #70b986;
+  box-shadow: 0 0 0 0.1875rem rgb(112 185 134 / 14%);
+}
+
+.app-shell__session-agent {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.app-shell__session-agent strong,
+.app-shell__session-agent small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell__session-agent strong {
+  font-size: 0.75rem;
+}
+
+.app-shell__session-agent small {
+  color: rgb(255 255 255 / 48%);
+  font-size: 0.625rem;
+}
+
+.app-shell__session button,
+.app-shell__session-mode {
+  flex: 0 0 auto;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 7%);
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.6875rem;
+  font-weight: 750;
+}
+
+.app-shell__session button {
+  min-height: 2.25rem;
+  padding-inline: var(--space-3);
+  cursor: pointer;
+}
+
+.app-shell__session button:hover:not(:disabled) {
+  border-color: rgb(244 198 79 / 55%);
+  color: #fff8e6;
+}
+
+.app-shell__session button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.app-shell__session-mode {
+  padding: 0.2rem 0.4rem;
+  color: #f4c64f;
+  letter-spacing: 0.08em;
+}
+
+.app-shell__session-error {
+  color: #ffb4ae;
+  font-size: 0.6875rem;
+}
+
 .app-shell__status p {
   display: flex;
   align-items: center;
@@ -152,7 +264,7 @@ import Navigation from './Navigation.vue'
 
 @media (min-width: 48rem) {
   .app-shell__sidebar {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     padding-inline: var(--space-8);
   }
@@ -173,7 +285,7 @@ import Navigation from './Navigation.vue'
     top: 0;
     align-self: start;
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto auto auto;
     align-content: stretch;
     gap: var(--space-10);
     height: 100vh;
@@ -186,6 +298,11 @@ import Navigation from './Navigation.vue'
     display: block;
   }
 
+  .app-shell__session {
+    padding-top: var(--space-4);
+    border-top: 1px solid rgb(255 255 255 / 10%);
+  }
+
   .app-shell__content {
     padding: var(--space-10);
   }
@@ -194,6 +311,12 @@ import Navigation from './Navigation.vue'
 @media (prefers-reduced-motion: no-preference) {
   .skip-link {
     transition: transform 160ms ease;
+  }
+
+  .app-shell__session button {
+    transition:
+      border-color 160ms ease,
+      color 160ms ease;
   }
 }
 </style>

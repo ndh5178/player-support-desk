@@ -3,6 +3,7 @@ import { createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 
 import DashboardView from '@/views/DashboardView.vue'
 import InquiryListView from '@/views/InquiryListView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const FOCUS_RETRY_LIMIT = 20
 const FOCUS_RETRY_DELAY_MS = 25
@@ -34,6 +35,15 @@ export async function focusPageHeading(): Promise<void> {
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+      meta: {
+        title: '담당자 로그인',
+        public: true,
+      },
+    },
     {
       path: '/',
       name: 'dashboard',
@@ -69,6 +79,28 @@ const router = createRouter({
     },
   ],
   scrollBehavior: () => ({ top: 0 }),
+})
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+
+  if (to.meta.public === true) {
+    if (to.name === 'login' && authStore.isAuthenticated) {
+      return { name: 'dashboard' }
+    }
+    return true
+  }
+
+  if (!authStore.isAuthenticated) {
+    return {
+      name: 'login',
+      query: {
+        redirect: to.fullPath,
+      },
+    }
+  }
+
+  return true
 })
 
 router.afterEach(async (to, from) => {

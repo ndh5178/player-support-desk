@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -26,7 +27,7 @@ async function mountAppShell(
       default: content,
     },
     global: {
-      plugins: [router],
+      plugins: [createPinia(), router],
     },
   })
 }
